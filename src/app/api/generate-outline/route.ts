@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { generateOutlineWithStickiness } from '@/lib/ai/anthropic'
+import { generateOutlineWithGPT } from '@/lib/ai/openai'
 import { logger } from '@/lib/logger'
 
 export async function POST(request: NextRequest) {
@@ -13,6 +14,7 @@ export async function POST(request: NextRequest) {
     logger.debug('Request payload', {
       topicLength: topic?.length,
       descriptionLength: description?.length,
+      aiModel: settings?.aiModel,
       isDemo: settings?.isDemo
     })
 
@@ -24,14 +26,21 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // AI API 키 확인
+    // 선택된 AI 모델 확인
+    const selectedModel = settings?.aiModel || 'gpt-4.1-nano'
+    const isClaudeModel = selectedModel.includes('claude')
+    const isGPTModel = selectedModel.includes('gpt')
+
+    // API 키 확인
     const hasAnthropic = process.env.ANTHROPIC_API_KEY &&
       process.env.ANTHROPIC_API_KEY !== 'your_anthropic_api_key_here'
+    const hasOpenAI = process.env.OPENAI_API_KEY &&
+      process.env.OPENAI_API_KEY !== 'your_openai_api_key_here'
 
-    if (!hasAnthropic) {
-      logger.info('Using sample data (no API key)')
+    // API 키가 없는 경우 샘플 데이터 반환
+    if ((isClaudeModel && !hasAnthropic) || (isGPTModel && !hasOpenAI)) {
+      logger.info('Using sample data (no API key)', { selectedModel })
 
-      // API 키가 없는 경우 샘플 데이터 반환
       const sampleOutline = {
         title: `${topic}: 완벽 가이드`,
         subtitle: '당신의 성공을 위한 실전 로드맵',
@@ -54,14 +63,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(sampleOutline)
     }
 
-    logger.info('Generating outline with AI', { topic })
+    logger.info('Generating outline with AI', { topic, model: selectedModel })
 
-    // 고급 AI로 독자를 사로잡는 아웃라인 생성
-    const outline = await generateOutlineWithStickiness(topic, description)
+    let outline
+
+    // 선택된 모델에 따라 적절한 함수 호출
+    if (isClaudeModel) {
+      outline = await generateOutlineWithStickiness(topic, description)
+    } else {
+      outline = await generateOutlineWithGPT(topic, description, selectedModel)
+    }
 
     const duration = Date.now() - startTime
     logger.apiResponse('POST', '/api/generate-outline', 200, duration)
     logger.info('Outline generated successfully', {
+      model: selectedModel,
       chaptersCount: outline.chapters?.length,
       hasSubtitle: !!outline.subtitle
     })

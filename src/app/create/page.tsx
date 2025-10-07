@@ -508,8 +508,8 @@ export default function CreatePage() {
                         <div className="flex items-start w-full gap-2">
                           <span className="text-xs font-bold mt-0.5 flex-shrink-0">{chapter.number}</span>
                           <div className="flex-1 min-w-0">
-                            <div className="text-sm font-medium">
-                              <span className="line-clamp-2">{chapter.title}</span>
+                            <div className="text-sm font-medium line-clamp-2">
+                              {chapter.title}
                             </div>
                           </div>
                           {generatedChapters.has(index) && (
@@ -540,12 +540,10 @@ export default function CreatePage() {
             {/* 콘텐츠 영역 */}
             <Card>
               <CardHeader>
-                <div className="flex justify-between items-start">
-                  <div className="flex-1">
-                    <CardTitle className="text-xl">
-                      Chapter {outline?.chapters[selectedChapter].number}: {outline?.chapters[selectedChapter].title}
-                    </CardTitle>
-                  </div>
+                <div>
+                  <CardTitle className="text-xl mb-3">
+                    Chapter {outline?.chapters[selectedChapter].number}: {outline?.chapters[selectedChapter].title}
+                  </CardTitle>
                   <div className="flex gap-2">
                     {outline?.chapters[selectedChapter].content && (
                       <Button
