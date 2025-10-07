@@ -1,24 +1,37 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { generateChapterContent } from '@/lib/ai/anthropic'
-import { generateWithOpenAI } from '@/lib/ai/openai'
+import { generateFirstChapterWithAha, generateChapterContent } from '@/lib/ai/anthropic'
+import { logger } from '@/lib/logger'
 
 export async function POST(request: NextRequest) {
+  const startTime = Date.now()
+
   try {
+    logger.apiRequest('POST', '/api/generate-chapter')
+
     const { bookTitle, chapter, settings } = await request.json()
 
+    logger.debug('Request payload', {
+      chapterNumber: chapter?.number,
+      hasAhaMoment: !!chapter?.ahaMoment,
+      estimatedWords: chapter?.estimatedWords
+    })
+
     if (!bookTitle || !chapter) {
+      logger.warn('Missing required fields', { bookTitle: !!bookTitle, chapter: !!chapter })
       return NextResponse.json(
         { error: '필수 정보가 누락되었습니다' },
         { status: 400 }
       )
     }
 
-    // API 키 확인
-    const hasOpenAI = process.env.OPENAI_API_KEY && process.env.OPENAI_API_KEY !== 'your_openai_api_key_here'
-    const hasAnthropic = process.env.ANTHROPIC_API_KEY && process.env.ANTHROPIC_API_KEY !== 'your_anthropic_api_key_here'
+    // AI API 키 확인
+    const hasAnthropic = process.env.ANTHROPIC_API_KEY &&
+      process.env.ANTHROPIC_API_KEY !== 'your_anthropic_api_key_here'
 
     // API 키가 없는 경우 샘플 콘텐츠 반환
-    if (!hasOpenAI && !hasAnthropic) {
+    if (!hasAnthropic) {
+      logger.info('Using sample content (no API key)', { chapterNumber: chapter.number })
+
       const sampleContent = `# ${chapter.title}
 
 ## 서론
@@ -87,13 +100,37 @@ ${chapter.keyPoints[2]}는 이 장의 마지막 핵심 주제입니다.
 
 *이 콘텐츠는 AI에 의해 생성되었습니다. 실제 서비스에서는 선택한 AI 모델(GPT-4, Claude 등)을 사용하여 더욱 풍부하고 전문적인 콘텐츠가 생성됩니다.*`
 
+      const duration = Date.now() - startTime
+      logger.apiResponse('POST', '/api/generate-chapter', 200, duration)
+
       return NextResponse.json({ content: sampleContent })
     }
 
     let content: string
 
-    // 설정에 따른 AI 모델 선택
-    if (settings.aiModel.startsWith('claude') && hasAnthropic) {
+    // 고급 AI 사용 (첫 챕터는 특별 최적화)
+    if (chapter.number === 1 && chapter.ahaMoment) {
+      logger.info('Generating first chapter with AI', {
+        chapterNumber: chapter.number,
+        bookTitle,
+        hasAhaMoment: true
+      })
+
+      // 첫 챕터: 독자를 사로잡는 특별 생성
+      content = await generateFirstChapterWithAha(
+        bookTitle,
+        chapter.title,
+        chapter.keyPoints,
+        chapter.ahaMoment,
+        chapter.estimatedWords
+      )
+    } else {
+      logger.info('Generating chapter with AI', {
+        chapterNumber: chapter.number,
+        bookTitle
+      })
+
+      // 일반 챕터
       content = await generateChapterContent(
         bookTitle,
         chapter.title,
@@ -101,27 +138,21 @@ ${chapter.keyPoints[2]}는 이 장의 마지막 핵심 주제입니다.
         chapter.keyPoints,
         chapter.estimatedWords
       )
-    } else if (hasOpenAI) {
-      const prompt = `Write Chapter ${chapter.number} for the ebook "${bookTitle}".
-      
-Chapter Title: ${chapter.title}
-Key Points: ${chapter.keyPoints.join(', ')}
-Target Words: ${chapter.estimatedWords}
-Language: ${settings.language === 'ko' ? 'Korean' : settings.language}
-Tone: ${settings.tone}
-Target Audience: ${settings.targetAudience}
-
-Please write comprehensive chapter content in markdown format.`
-
-      content = await generateWithOpenAI(prompt, settings.aiModel.startsWith('gpt-4') ? 'gpt-4-turbo-preview' : 'gpt-3.5-turbo')
-    } else {
-      // 기본 샘플 콘텐츠
-      content = sampleContent
     }
+
+    const duration = Date.now() - startTime
+    logger.apiResponse('POST', '/api/generate-chapter', 200, duration)
+    logger.info('Chapter generated successfully', {
+      chapterNumber: chapter.number,
+      contentLength: content.length
+    })
 
     return NextResponse.json({ content })
   } catch (error) {
-    console.error('Chapter generation error:', error)
+    const duration = Date.now() - startTime
+    logger.error('Chapter generation failed', error, { duration: `${duration}ms` })
+    logger.apiResponse('POST', '/api/generate-chapter', 500, duration)
+
     return NextResponse.json(
       { error: '챕터 생성 중 오류가 발생했습니다' },
       { status: 500 }
