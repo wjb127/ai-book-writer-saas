@@ -17,7 +17,9 @@ import {
   FileDown,
   MoreVertical,
   Plus,
-  Trash
+  Trash,
+  ChevronUp,
+  ChevronDown
 } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -63,12 +65,14 @@ export default function EditPage() {
   const [isGenerating, setIsGenerating] = useState(false)
   const [generatedChapters, setGeneratedChapters] = useState<Set<number>>(new Set())
   const [editingContent, setEditingContent] = useState('')
+  const [originalContent, setOriginalContent] = useState('') // 취소를 위한 원본 저장
   const [editingKeyPoints, setEditingKeyPoints] = useState(false)
   const [editingAhaMoment, setEditingAhaMoment] = useState(false)
   const [tempKeyPoints, setTempKeyPoints] = useState<string>('')
   const [tempAhaMoment, setTempAhaMoment] = useState<string>('')
   const [editingChapterIndex, setEditingChapterIndex] = useState<number | null>(null)
   const [editingChapterTitle, setEditingChapterTitle] = useState<string>('')
+  const [autoSaveTimeout, setAutoSaveTimeout] = useState<NodeJS.Timeout | null>(null)
 
   // localStorage에서 데이터 불러오기
   useEffect(() => {
@@ -106,6 +110,21 @@ export default function EditPage() {
     setEditingKeyPoints(false)
     setEditingAhaMoment(false)
   }, [selectedChapter])
+
+  // Ctrl+S 단축키로 저장
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault()
+        if (outline?.chapters[selectedChapter].isEditing) {
+          handleSaveChapter(selectedChapter)
+        }
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [selectedChapter, outline])
 
   const handleSaveKeyPoints = () => {
     if (!outline) return
@@ -204,13 +223,61 @@ export default function EditPage() {
     updatedChapters[chapterIndex].isEditing = false
 
     setOutline({ ...outline, chapters: updatedChapters })
+    setOriginalContent('') // 원본 초기화
     toast.success('챕터가 저장되었습니다')
+  }
+
+  const handleCancelEdit = (chapterIndex: number) => {
+    if (!outline) return
+
+    const updatedChapters = [...outline.chapters]
+    updatedChapters[chapterIndex].isEditing = false
+    updatedChapters[chapterIndex].content = originalContent // 원본으로 복원
+
+    setOutline({ ...outline, chapters: updatedChapters })
+    setEditingContent(originalContent)
+    setOriginalContent('')
+    toast.info('편집이 취소되었습니다')
+  }
+
+  const handleStartEdit = (chapterIndex: number) => {
+    if (!outline) return
+
+    const currentContent = outline.chapters[chapterIndex].content || ''
+    setOriginalContent(currentContent) // 원본 저장
+    setEditingContent(currentContent)
+
+    const updatedChapters = [...outline.chapters]
+    updatedChapters[chapterIndex].isEditing = true
+    setOutline({ ...outline, chapters: updatedChapters })
+  }
+
+  // 자동저장 (debounce 3초)
+  const handleContentChange = (content: string, chapterIndex: number) => {
+    setEditingContent(content)
+
+    // 기존 타이머 클리어
+    if (autoSaveTimeout) {
+      clearTimeout(autoSaveTimeout)
+    }
+
+    // 새로운 타이머 설정
+    const timeout = setTimeout(() => {
+      if (!outline) return
+      const updatedChapters = [...outline.chapters]
+      updatedChapters[chapterIndex].content = content
+      setOutline({ ...outline, chapters: updatedChapters })
+      toast.success('자동 저장되었습니다', { duration: 1000 })
+    }, 3000)
+
+    setAutoSaveTimeout(timeout)
   }
 
   const handleAddChapter = (afterIndex?: number) => {
     if (!outline) return
 
-    const insertIndex = afterIndex !== undefined ? afterIndex + 1 : 0
+    // afterIndex가 없으면 맨 끝에 추가
+    const insertIndex = afterIndex !== undefined ? afterIndex + 1 : outline.chapters.length
     const newChapter: Chapter = {
       number: insertIndex + 1,
       title: '새 챕터',
@@ -292,6 +359,70 @@ export default function EditPage() {
     setOutline({ ...outline, chapters: updatedChapters })
     setEditingChapterIndex(null)
     toast.success('챕터 제목이 저장되었습니다')
+  }
+
+  const handleMoveChapterUp = (index: number) => {
+    if (!outline || index === 0) return
+
+    const updatedChapters = [...outline.chapters]
+    // 두 챕터의 위치를 교환
+    ;[updatedChapters[index - 1], updatedChapters[index]] = [updatedChapters[index], updatedChapters[index - 1]]
+
+    // 챕터 번호 재정렬
+    updatedChapters.forEach((ch, i) => {
+      ch.number = i + 1
+    })
+
+    setOutline({ ...outline, chapters: updatedChapters })
+
+    // generatedChapters Set 업데이트
+    const updatedGeneratedSet = new Set<number>()
+    generatedChapters.forEach(idx => {
+      if (idx === index) {
+        updatedGeneratedSet.add(index - 1)
+      } else if (idx === index - 1) {
+        updatedGeneratedSet.add(index)
+      } else {
+        updatedGeneratedSet.add(idx)
+      }
+    })
+    setGeneratedChapters(updatedGeneratedSet)
+
+    // 선택된 챕터도 함께 이동
+    setSelectedChapter(index - 1)
+    toast.success('챕터가 위로 이동되었습니다')
+  }
+
+  const handleMoveChapterDown = (index: number) => {
+    if (!outline || index === outline.chapters.length - 1) return
+
+    const updatedChapters = [...outline.chapters]
+    // 두 챕터의 위치를 교환
+    ;[updatedChapters[index], updatedChapters[index + 1]] = [updatedChapters[index + 1], updatedChapters[index]]
+
+    // 챕터 번호 재정렬
+    updatedChapters.forEach((ch, i) => {
+      ch.number = i + 1
+    })
+
+    setOutline({ ...outline, chapters: updatedChapters })
+
+    // generatedChapters Set 업데이트
+    const updatedGeneratedSet = new Set<number>()
+    generatedChapters.forEach(idx => {
+      if (idx === index) {
+        updatedGeneratedSet.add(index + 1)
+      } else if (idx === index + 1) {
+        updatedGeneratedSet.add(index)
+      } else {
+        updatedGeneratedSet.add(idx)
+      }
+    })
+    setGeneratedChapters(updatedGeneratedSet)
+
+    // 선택된 챕터도 함께 이동
+    setSelectedChapter(index + 1)
+    toast.success('챕터가 아래로 이동되었습니다')
   }
 
   const handleCopyToClipboard = (content: string) => {
@@ -438,7 +569,7 @@ export default function EditPage() {
                   onClick={() => handleAddChapter()}
                 >
                   <Plus className="w-4 h-4 mr-2" />
-                  새 챕터 추가
+                  맨 끝에 챕터 추가
                 </Button>
                 <Button
                   className="w-full"
@@ -478,8 +609,8 @@ export default function EditPage() {
                 </Dialog>
               </div>
 
-              <ScrollArea className="h-[calc(100vh-28rem)] pr-4">
-                <div className="space-y-3">
+              <ScrollArea className="h-[calc(100vh-28rem)]">
+                <div className="space-y-3 px-4 w-[80%]">
                   {outline?.chapters.map((chapter, index) => (
                     <div key={index} className="relative group">
                       {editingChapterIndex === index ? (
@@ -505,56 +636,89 @@ export default function EditPage() {
                           </Button>
                         </div>
                       ) : (
-                        <div className="flex items-center gap-1">
-                          <Button
-                            variant={selectedChapter === index ? 'default' : 'ghost'}
-                            className="flex-1 justify-start text-left py-3 px-4 h-auto"
-                            onClick={() => setSelectedChapter(index)}
-                          >
-                            <div className="flex items-start w-full gap-2">
-                              <span className="text-xs font-bold mt-0.5 flex-shrink-0">{chapter.number}</span>
-                              <div className="flex-1 min-w-0">
-                                <div className="text-sm font-medium line-clamp-2">
-                                  {chapter.title}
+                        <div className="flex flex-col gap-1">
+                          <div className="border rounded-lg overflow-hidden">
+                            <button
+                              className={`w-full text-left py-2 px-2 transition-colors ${
+                                selectedChapter === index
+                                  ? 'bg-primary text-primary-foreground'
+                                  : 'hover:bg-accent hover:text-accent-foreground'
+                              }`}
+                              onClick={() => setSelectedChapter(index)}
+                            >
+                              <div className="flex items-center gap-1.5 max-w-full">
+                                <span className="text-xs font-bold flex-shrink-0 w-5">{chapter.number}</span>
+                                <div className="flex-1 min-w-0 overflow-hidden">
+                                  <div className="text-sm font-medium overflow-hidden text-ellipsis whitespace-nowrap">
+                                    {chapter.title}
+                                  </div>
+                                </div>
+                                {generatedChapters.has(index) && (
+                                  <CheckCircle className="w-3.5 h-3.5 text-green-500 flex-shrink-0" />
+                                )}
+                              </div>
+                            </button>
+                            {selectedChapter === index && (
+                              <div className="border-t bg-muted/30 p-2 space-y-1">
+                                <div className="grid grid-cols-3 gap-1">
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="text-xs h-7 px-2"
+                                    onClick={() => handleMoveChapterUp(index)}
+                                    disabled={index === 0}
+                                  >
+                                    <ChevronUp className="w-3 h-3" />
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="text-xs h-7 px-2"
+                                    onClick={() => handleMoveChapterDown(index)}
+                                    disabled={index === outline.chapters.length - 1}
+                                  >
+                                    <ChevronDown className="w-3 h-3" />
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="text-xs h-7 px-2"
+                                    onClick={() => handleEditChapterTitle(index)}
+                                  >
+                                    <Edit3 className="w-3 h-3" />
+                                  </Button>
+                                </div>
+                                <div className="grid grid-cols-3 gap-1">
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="text-xs h-7 px-1"
+                                    onClick={() => handleAddChapter(index - 1)}
+                                  >
+                                    <Plus className="w-3 h-3 mr-0.5" />
+                                    <span className="text-[10px]">위</span>
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="text-xs h-7 px-1"
+                                    onClick={() => handleAddChapter(index)}
+                                  >
+                                    <Plus className="w-3 h-3 mr-0.5" />
+                                    <span className="text-[10px]">아래</span>
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="text-xs h-7 px-1 text-red-600 hover:text-red-700 hover:bg-red-50"
+                                    onClick={() => handleDeleteChapter(index)}
+                                  >
+                                    <Trash className="w-3 h-3" />
+                                  </Button>
                                 </div>
                               </div>
-                              {generatedChapters.has(index) && (
-                                <CheckCircle className="w-4 h-4 ml-1 text-green-500 flex-shrink-0 mt-0.5" />
-                              )}
-                            </div>
-                          </Button>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-8 w-8 p-0 flex-shrink-0"
-                              >
-                                <MoreVertical className="w-4 h-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => handleEditChapterTitle(index)}>
-                                <Edit3 className="w-4 h-4 mr-2" />
-                                제목 수정
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleAddChapter(index - 1)}>
-                                <Plus className="w-4 h-4 mr-2" />
-                                위에 추가
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleAddChapter(index)}>
-                                <Plus className="w-4 h-4 mr-2" />
-                                아래 추가
-                              </DropdownMenuItem>
-                              <DropdownMenuItem
-                                onClick={() => handleDeleteChapter(index)}
-                                className="text-red-600"
-                              >
-                                <Trash className="w-4 h-4 mr-2" />
-                                삭제
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
+                            )}
+                          </div>
                         </div>
                       )}
                     </div>
@@ -586,51 +750,57 @@ export default function EditPage() {
                   Chapter {outline?.chapters[selectedChapter].number}: {outline?.chapters[selectedChapter].title}
                 </CardTitle>
                 <div className="flex gap-2">
-                  {outline?.chapters[selectedChapter].content && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => {
-                        if (outline.chapters[selectedChapter].isEditing) {
-                          handleSaveChapter(selectedChapter)
-                        } else {
-                          const updatedChapters = [...outline.chapters]
-                          updatedChapters[selectedChapter].isEditing = true
-                          setEditingContent(outline.chapters[selectedChapter].content || '')
-                          setOutline({ ...outline, chapters: updatedChapters })
-                        }
-                      }}
-                    >
-                      {outline.chapters[selectedChapter].isEditing ? (
-                        <>
-                          <Save className="w-4 h-4 mr-1" />
-                          저장
-                        </>
-                      ) : (
-                        <>
+                  {outline?.chapters[selectedChapter].isEditing ? (
+                    <>
+                      <Button
+                        size="sm"
+                        onClick={() => handleSaveChapter(selectedChapter)}
+                      >
+                        <Save className="w-4 h-4 mr-1" />
+                        저장
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleCancelEdit(selectedChapter)}
+                      >
+                        취소
+                      </Button>
+                      <span className="text-xs text-muted-foreground flex items-center ml-2">
+                        💾 3초 후 자동 저장됩니다
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      {outline?.chapters[selectedChapter].content && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleStartEdit(selectedChapter)}
+                        >
                           <Edit3 className="w-4 h-4 mr-1" />
                           편집
-                        </>
+                        </Button>
                       )}
-                    </Button>
+                      <Button
+                        size="sm"
+                        onClick={() => handleGenerateChapter(selectedChapter)}
+                        disabled={isGenerating}
+                      >
+                        {isGenerating ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                            생성 중...
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="w-4 h-4 mr-1" />
+                            {generatedChapters.has(selectedChapter) ? '재생성' : '내용 생성'}
+                          </>
+                        )}
+                      </Button>
+                    </>
                   )}
-                  <Button
-                    size="sm"
-                    onClick={() => handleGenerateChapter(selectedChapter)}
-                    disabled={isGenerating}
-                  >
-                    {isGenerating ? (
-                      <>
-                        <Loader2 className="w-4 h-4 mr-1 animate-spin" />
-                        생성 중...
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles className="w-4 h-4 mr-1" />
-                        {generatedChapters.has(selectedChapter) ? '재생성' : '내용 생성'}
-                      </>
-                    )}
-                  </Button>
                 </div>
               </div>
 
@@ -703,11 +873,21 @@ export default function EditPage() {
             </CardHeader>
             <CardContent>
               {outline?.chapters[selectedChapter].isEditing ? (
-                <Textarea
-                  value={editingContent}
-                  onChange={(e) => setEditingContent(e.target.value)}
-                  className="min-h-[600px] font-mono text-sm"
-                />
+                <div className="space-y-2">
+                  <Textarea
+                    value={editingContent}
+                    onChange={(e) => handleContentChange(e.target.value, selectedChapter)}
+                    className="min-h-[600px] font-mono text-sm"
+                    placeholder="챕터 내용을 입력하세요. 마크다운 형식을 지원합니다."
+                  />
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <div className="flex gap-4">
+                      <span>단어 수: {editingContent.split(/\s+/).filter(w => w).length.toLocaleString()}</span>
+                      <span>문자 수: {editingContent.length.toLocaleString()}</span>
+                    </div>
+                    <div>Ctrl+S로 빠른 저장 가능</div>
+                  </div>
+                </div>
               ) : (
                 <Tabs defaultValue="preview" className="w-full">
                   <TabsList className="w-full">
