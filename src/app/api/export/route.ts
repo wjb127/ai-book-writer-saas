@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import jsPDF from 'jspdf'
+import { Document, Paragraph, TextRun, HeadingLevel, AlignmentType, Packer } from 'docx'
+import Epub from 'epub-gen-memory'
 
 export async function POST(request: NextRequest) {
   try {
@@ -95,12 +97,114 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    // EPUB, DOCX 등 다른 형식은 추가 구현 필요
-    if (format === 'epub' || format === 'docx') {
-      return NextResponse.json(
-        { error: `${format.toUpperCase()} 형식은 준비 중입니다` },
-        { status: 501 }
+    // DOCX 생성
+    if (format === 'docx') {
+      const sections = []
+
+      // 타이틀 페이지
+      sections.push(
+        new Paragraph({
+          text: outline.title,
+          heading: HeadingLevel.TITLE,
+          alignment: AlignmentType.CENTER,
+          spacing: { after: 400 }
+        }),
+        new Paragraph({
+          text: 'AI Book Writer로 생성됨',
+          alignment: AlignmentType.CENTER,
+          spacing: { after: 800 }
+        })
       )
+
+      // 목차
+      sections.push(
+        new Paragraph({
+          text: '목차',
+          heading: HeadingLevel.HEADING_1,
+          spacing: { before: 400, after: 200 }
+        })
+      )
+
+      outline.chapters.forEach((chapter: any) => {
+        sections.push(
+          new Paragraph({
+            text: `${chapter.number}. ${chapter.title}`,
+            spacing: { after: 100 }
+          })
+        )
+      })
+
+      // 각 챕터 내용
+      outline.chapters.forEach((chapter: any) => {
+        if (chapter.content) {
+          // 챕터 제목
+          sections.push(
+            new Paragraph({
+              text: `Chapter ${chapter.number}: ${chapter.title}`,
+              heading: HeadingLevel.HEADING_1,
+              spacing: { before: 400, after: 200 }
+            })
+          )
+
+          // 챕터 내용을 단락으로 나누기
+          const paragraphs = chapter.content.split('\n\n')
+          paragraphs.forEach((para: string) => {
+            const cleanText = para.replace(/[#*`]/g, '').trim()
+            if (cleanText) {
+              sections.push(
+                new Paragraph({
+                  children: [new TextRun(cleanText)],
+                  spacing: { after: 200 }
+                })
+              )
+            }
+          })
+        }
+      })
+
+      const doc = new Document({
+        sections: [{
+          properties: {},
+          children: sections
+        }]
+      })
+
+      const buffer = await Packer.toBuffer(doc)
+
+      return new NextResponse(buffer, {
+        headers: {
+          'Content-Type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+          'Content-Disposition': `attachment; filename="${outline.title}.docx"`
+        }
+      })
+    }
+
+    // EPUB 생성
+    if (format === 'epub') {
+      const chapters = outline.chapters
+        .filter((chapter: any) => chapter.content)
+        .map((chapter: any) => ({
+          title: `Chapter ${chapter.number}: ${chapter.title}`,
+          data: chapter.content.replace(/[#*`]/g, '').replace(/\n/g, '<br/>')
+        }))
+
+      const epub = new Epub(
+        {
+          title: outline.title,
+          author: 'AI Book Writer',
+          content: chapters
+        },
+        undefined
+      )
+
+      const epubBuffer = await epub.genEpub()
+
+      return new NextResponse(epubBuffer, {
+        headers: {
+          'Content-Type': 'application/epub+zip',
+          'Content-Disposition': `attachment; filename="${outline.title}.epub"`
+        }
+      })
     }
 
     return NextResponse.json(

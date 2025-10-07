@@ -14,7 +14,9 @@ import {
   Edit3,
   CheckCircle,
   Settings,
-  Wand2
+  Wand2,
+  Copy,
+  FileDown
 } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -232,6 +234,68 @@ export default function CreatePage() {
 
     setOutline({ ...outline, chapters: updatedChapters })
     toast.success('챕터가 저장되었습니다')
+  }
+
+  // 클립보드에 복사
+  const handleCopyToClipboard = (content: string) => {
+    navigator.clipboard.writeText(content)
+      .then(() => toast.success('클립보드에 복사되었습니다'))
+      .catch(() => toast.error('복사에 실패했습니다'))
+  }
+
+  // TXT 파일 다운로드
+  const handleDownloadTxt = (content: string, title: string) => {
+    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${title}.txt`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+    toast.success('TXT 파일이 다운로드되었습니다')
+  }
+
+  // PDF 파일 다운로드 (개별 챕터)
+  const handleDownloadChapterPdf = async (chapterIndex: number) => {
+    if (!outline) return
+
+    const chapter = outline.chapters[chapterIndex]
+    if (!chapter.content) {
+      toast.error('생성된 내용이 없습니다')
+      return
+    }
+
+    toast.info('PDF 생성 중...')
+
+    try {
+      const response = await fetch('/api/export', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          outline: {
+            title: outline.title,
+            chapters: [chapter]
+          },
+          format: 'pdf'
+        })
+      })
+
+      if (!response.ok) throw new Error('PDF 생성 실패')
+
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `${chapter.title}.pdf`
+      a.click()
+      URL.revokeObjectURL(url)
+
+      toast.success('PDF 파일이 다운로드되었습니다')
+    } catch (error) {
+      toast.error('PDF 생성 중 오류가 발생했습니다')
+    }
   }
 
   const handleExport = async (format: 'pdf' | 'epub' | 'docx') => {
@@ -678,23 +742,56 @@ export default function CreatePage() {
                     </TabsList>
 
                     <TabsContent value="preview">
-                      <ScrollArea className="h-[600px] w-full rounded-md border p-6">
-                        {outline?.chapters[selectedChapter].content ? (
-                          <div className="prose prose-sm dark:prose-invert max-w-none">
-                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                              {outline.chapters[selectedChapter].content}
-                            </ReactMarkdown>
-                          </div>
-                        ) : (
-                          <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
-                            <FileText className="w-12 h-12 mb-4" />
-                            <p className="text-center">
-                              아직 생성된 내용이 없습니다
-                              <br />상단의 '내용 생성' 버튼을 클릭해주세요
-                            </p>
+                      <div className="space-y-3">
+                        {outline?.chapters[selectedChapter].content && (
+                          <div className="flex gap-2 border-b pb-3">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleCopyToClipboard(outline.chapters[selectedChapter].content!)}
+                            >
+                              <Copy className="w-4 h-4 mr-1" />
+                              복사
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleDownloadTxt(
+                                outline.chapters[selectedChapter].content!,
+                                outline.chapters[selectedChapter].title
+                              )}
+                            >
+                              <FileText className="w-4 h-4 mr-1" />
+                              TXT
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleDownloadChapterPdf(selectedChapter)}
+                            >
+                              <FileDown className="w-4 h-4 mr-1" />
+                              PDF
+                            </Button>
                           </div>
                         )}
-                      </ScrollArea>
+                        <ScrollArea className="h-[550px] w-full rounded-md border p-6">
+                          {outline?.chapters[selectedChapter].content ? (
+                            <div className="prose prose-sm dark:prose-invert max-w-none">
+                              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                {outline.chapters[selectedChapter].content}
+                              </ReactMarkdown>
+                            </div>
+                          ) : (
+                            <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
+                              <FileText className="w-12 h-12 mb-4" />
+                              <p className="text-center">
+                                아직 생성된 내용이 없습니다
+                                <br />상단의 '내용 생성' 버튼을 클릭해주세요
+                              </p>
+                            </div>
+                          )}
+                        </ScrollArea>
+                      </div>
                     </TabsContent>
 
                     <TabsContent value="markdown">
