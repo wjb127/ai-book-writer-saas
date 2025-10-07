@@ -1,10 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { 
-  BookOpen, 
-  Sparkles, 
+import {
+  BookOpen,
+  Sparkles,
   ArrowLeft,
   ArrowRight,
   Loader2,
@@ -39,15 +39,17 @@ interface Chapter {
   estimatedWords: number
   content?: string
   isEditing?: boolean
+  ahaMoment?: string
 }
 
 interface Outline {
   title: string
+  subtitle?: string
   chapters: Chapter[]
 }
 
 interface BookSettings {
-  aiModel: 'gpt-3.5' | 'gpt-4' | 'claude-sonnet' | 'claude-opus'
+  aiModel: 'gpt-4.1-nano' | 'gpt-4o-mini' | 'gpt-4.1-mini' | 'gpt-4.1' | 'claude-sonnet' | 'claude-opus'
   language: 'ko' | 'en' | 'ja' | 'zh'
   tone: 'professional' | 'casual' | 'academic' | 'creative'
   targetAudience: string
@@ -62,56 +64,100 @@ export default function CreatePage() {
   const [isGenerating, setIsGenerating] = useState(false)
   const [generatedChapters, setGeneratedChapters] = useState<Set<number>>(new Set())
   const [editingContent, setEditingContent] = useState('')
+  const [editingKeyPoints, setEditingKeyPoints] = useState(false)
+  const [editingAhaMoment, setEditingAhaMoment] = useState(false)
+  const [tempKeyPoints, setTempKeyPoints] = useState<string>('')
+  const [tempAhaMoment, setTempAhaMoment] = useState<string>('')
   const [settings, setSettings] = useState<BookSettings>({
-    aiModel: 'gpt-4',
+    aiModel: 'gpt-4.1-nano',
     language: 'ko',
     tone: 'professional',
     targetAudience: '일반 독자'
   })
+
+  // 챕터 변경 시 편집 모드 종료
+  useEffect(() => {
+    setEditingKeyPoints(false)
+    setEditingAhaMoment(false)
+  }, [selectedChapter])
+
+  // 빠른 시작 예시
+  const quickStartExamples = [
+    {
+      topic: "AI 시대 생존 전략",
+      description: "ChatGPT와 AI 도구들이 쏟아지는 시대, 직장인과 프리랜서들이 AI를 활용해 업무 생산성을 10배 높이고 경쟁력을 갖추는 실전 가이드입니다. AI를 두려워하지 않고 나의 무기로 만드는 구체적인 방법을 알려줍니다."
+    },
+    {
+      topic: "월급 외 수입 만들기",
+      description: "직장인들이 퇴근 후 2-3시간으로 월 100만원 이상의 부수입을 만드는 실전 전략입니다. 온라인 강의, 디지털 콘텐츠 판매, 컨설팅 등 실제 성공 사례와 단계별 실행 방법을 담았습니다."
+    },
+    {
+      topic: "하루 1시간 영어 공부법",
+      description: "바쁜 직장인도 하루 1시간으로 6개월 만에 영어 회화 실력을 획기적으로 향상시키는 방법입니다. 문법 암기가 아닌 실전 회화 중심으로, 검증된 학습법과 구체적인 루틴을 제시합니다."
+    }
+  ]
+
+  const loadExample = (example: typeof quickStartExamples[0]) => {
+    setTopic(example.topic)
+    setDescription(example.description)
+  }
+
+  const handleSaveKeyPoints = () => {
+    if (!outline) return
+    const points = tempKeyPoints.split('\n').filter(p => p.trim())
+    const updatedChapters = [...outline.chapters]
+    updatedChapters[selectedChapter].keyPoints = points
+    setOutline({ ...outline, chapters: updatedChapters })
+    setEditingKeyPoints(false)
+    toast.success('핵심 포인트가 저장되었습니다')
+  }
+
+  const handleSaveAhaMoment = () => {
+    if (!outline) return
+    const updatedChapters = [...outline.chapters]
+    updatedChapters[selectedChapter].ahaMoment = tempAhaMoment
+    setOutline({ ...outline, chapters: updatedChapters })
+    setEditingAhaMoment(false)
+    toast.success('핵심 인사이트가 저장되었습니다')
+  }
+
+  const handleStartEditKeyPoints = () => {
+    setTempKeyPoints(outline?.chapters[selectedChapter].keyPoints.join('\n') || '')
+    setEditingKeyPoints(true)
+  }
+
+  const handleStartEditAhaMoment = () => {
+    setTempAhaMoment(outline?.chapters[selectedChapter].ahaMoment || '')
+    setEditingAhaMoment(true)
+  }
 
   const handleGenerateOutline = async () => {
     if (!topic || !description) {
       toast.error('주제와 설명을 모두 입력해주세요')
       return
     }
-    
+
     setIsGenerating(true)
-    
+
     try {
       const response = await fetch('/api/generate-outline', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          topic, 
+        body: JSON.stringify({
+          topic,
           description,
-          settings 
+          settings
         })
       })
-      
+
       if (!response.ok) throw new Error('목차 생성 실패')
-      
+
       const data = await response.json()
       setOutline(data)
       setStep(2)
       toast.success('목차가 성공적으로 생성되었습니다')
     } catch (error) {
       toast.error('목차 생성 중 오류가 발생했습니다')
-      // 데모용 샘플 데이터
-      const sampleOutline: Outline = {
-        title: `${topic}: 완벽 마스터 가이드`,
-        chapters: Array.from({ length: 10 }, (_, i) => ({
-          number: i + 1,
-          title: `Chapter ${i + 1}: ${topic} 핵심 개념 ${i + 1}`,
-          keyPoints: [
-            `핵심 포인트 ${i + 1}-1`,
-            `핵심 포인트 ${i + 1}-2`,
-            `핵심 포인트 ${i + 1}-3`
-          ],
-          estimatedWords: 2500 + Math.floor(Math.random() * 1000)
-        }))
-      }
-      setOutline(sampleOutline)
-      setStep(2)
     } finally {
       setIsGenerating(false)
     }
@@ -119,40 +165,49 @@ export default function CreatePage() {
 
   const handleGenerateChapter = async (chapterIndex: number) => {
     if (!outline) return
-    
+
     setIsGenerating(true)
-    
+
     try {
+      const chapter = outline.chapters[chapterIndex]
+
       const response = await fetch('/api/generate-chapter', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           bookTitle: outline.title,
-          chapter: outline.chapters[chapterIndex],
+          chapter,
           settings
         })
       })
-      
+
       if (!response.ok) throw new Error('챕터 생성 실패')
-      
-      const data = await response.json()
-      const updatedChapters = [...outline.chapters]
-      updatedChapters[chapterIndex].content = data.content
-      
-      setOutline({ ...outline, chapters: updatedChapters })
+
+      // 스트리밍 응답 처리
+      const reader = response.body?.getReader()
+      const decoder = new TextDecoder()
+
+      if (!reader) throw new Error('No reader available')
+
+      let fullContent = ''
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+
+        const chunk = decoder.decode(value, { stream: true })
+        fullContent += chunk
+
+        // 실시간으로 UI 업데이트
+        const updatedChapters = [...outline.chapters]
+        updatedChapters[chapterIndex].content = fullContent
+        setOutline({ ...outline, chapters: updatedChapters })
+      }
+
       setGeneratedChapters(prev => new Set(prev).add(chapterIndex))
       toast.success(`Chapter ${chapterIndex + 1} 생성 완료`)
     } catch (error) {
       toast.error('챕터 생성 중 오류가 발생했습니다')
-      // 데모용 샘플 콘텐츠
-      const chapter = outline.chapters[chapterIndex]
-      const sampleContent = `# ${chapter.title}\n\n## 개요\n\n이 챕터에서는 ${chapter.keyPoints.join(', ')}에 대해 다룹니다.\n\n[AI가 생성할 상세 내용]`
-      
-      const updatedChapters = [...outline.chapters]
-      updatedChapters[chapterIndex].content = sampleContent
-      
-      setOutline({ ...outline, chapters: updatedChapters })
-      setGeneratedChapters(prev => new Set(prev).add(chapterIndex))
     } finally {
       setIsGenerating(false)
     }
@@ -160,23 +215,21 @@ export default function CreatePage() {
 
   const handleGenerateAllChapters = async () => {
     if (!outline) return
-    
+
     for (let i = 0; i < outline.chapters.length; i++) {
       if (!generatedChapters.has(i)) {
         await handleGenerateChapter(i)
-        // 각 챕터 생성 사이에 잠시 대기
-        await new Promise(resolve => setTimeout(resolve, 1000))
       }
     }
   }
 
   const handleSaveChapter = (chapterIndex: number) => {
     if (!outline) return
-    
+
     const updatedChapters = [...outline.chapters]
     updatedChapters[chapterIndex].content = editingContent
     updatedChapters[chapterIndex].isEditing = false
-    
+
     setOutline({ ...outline, chapters: updatedChapters })
     toast.success('챕터가 저장되었습니다')
   }
@@ -186,9 +239,9 @@ export default function CreatePage() {
       toast.error('최소 하나 이상의 챕터를 생성해주세요')
       return
     }
-    
+
     toast.info(`${format.toUpperCase()} 형식으로 내보내기 준비 중...`)
-    
+
     try {
       const response = await fetch('/api/export', {
         method: 'POST',
@@ -198,16 +251,16 @@ export default function CreatePage() {
           format
         })
       })
-      
+
       if (!response.ok) throw new Error('내보내기 실패')
-      
+
       const blob = await response.blob()
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
       a.download = `${outline.title}.${format}`
       a.click()
-      
+
       toast.success('파일이 다운로드되었습니다')
     } catch (error) {
       toast.error('내보내기 중 오류가 발생했습니다')
@@ -224,12 +277,6 @@ export default function CreatePage() {
             <span className="font-bold text-xl">AI Book Writer</span>
           </Link>
           <div className="flex items-center space-x-4">
-            {step === 2 && (
-              <Button variant="outline" size="sm">
-                <Save className="w-4 h-4 mr-2" />
-                프로젝트 저장
-              </Button>
-            )}
             <Link href="/">
               <Button variant="ghost">
                 <ArrowLeft className="w-4 h-4 mr-2" />
@@ -256,11 +303,36 @@ export default function CreatePage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
+                {/* 빠른 시작 예시 */}
+                <div className="space-y-2">
+                  <Label>빠른 시작 예시</Label>
+                  <div className="grid gap-2">
+                    {quickStartExamples.map((example, i) => (
+                      <Button
+                        key={i}
+                        variant="outline"
+                        size="sm"
+                        className="justify-start text-left h-auto py-2"
+                        onClick={() => loadExample(example)}
+                      >
+                        <div className="flex-1">
+                          <div className="font-medium">{example.topic}</div>
+                          <div className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
+                            {example.description.substring(0, 60)}...
+                          </div>
+                        </div>
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+
+                <Separator />
+
                 {/* 설정 섹션 */}
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>AI 모델</Label>
-                    <Select 
+                    <Select
                       value={settings.aiModel}
                       onValueChange={(value: any) => setSettings({...settings, aiModel: value})}
                     >
@@ -268,17 +340,18 @@ export default function CreatePage() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="gpt-3.5">GPT-3.5 (빠름)</SelectItem>
-                        <SelectItem value="gpt-4">GPT-4 (고품질)</SelectItem>
-                        <SelectItem value="claude-sonnet">Claude Sonnet (균형)</SelectItem>
-                        <SelectItem value="claude-opus">Claude Opus (최고품질)</SelectItem>
+                        <SelectItem value="gpt-4.1-nano">GPT-4.1 Nano (최저가 💰)</SelectItem>
+                        <SelectItem value="gpt-4o-mini">GPT-4o Mini (빠름 ⚡)</SelectItem>
+                        <SelectItem value="gpt-4.1-mini">GPT-4.1 Mini (균형)</SelectItem>
+                        <SelectItem value="gpt-4.1">GPT-4.1 (고품질)</SelectItem>
+                        <SelectItem value="claude-sonnet">Claude Sonnet 4.5 (최고품질 🏆)</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
-                  
+
                   <div className="space-y-2">
                     <Label>언어</Label>
-                    <Select 
+                    <Select
                       value={settings.language}
                       onValueChange={(value: any) => setSettings({...settings, language: value})}
                     >
@@ -293,10 +366,10 @@ export default function CreatePage() {
                       </SelectContent>
                     </Select>
                   </div>
-                  
+
                   <div className="space-y-2">
                     <Label>문체</Label>
-                    <Select 
+                    <Select
                       value={settings.tone}
                       onValueChange={(value: any) => setSettings({...settings, tone: value})}
                     >
@@ -311,7 +384,7 @@ export default function CreatePage() {
                       </SelectContent>
                     </Select>
                   </div>
-                  
+
                   <div className="space-y-2">
                     <Label htmlFor="audience">대상 독자</Label>
                     <Input
@@ -324,7 +397,7 @@ export default function CreatePage() {
                 </div>
 
                 <Separator />
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="topic">전자책 주제</Label>
                   <Input
@@ -334,7 +407,7 @@ export default function CreatePage() {
                     onChange={(e) => setTopic(e.target.value)}
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="description">상세 설명</Label>
                   <Textarea
@@ -346,8 +419,8 @@ export default function CreatePage() {
                   />
                 </div>
 
-                <Button 
-                  className="w-full" 
+                <Button
+                  className="w-full"
                   size="lg"
                   onClick={handleGenerateOutline}
                   disabled={!topic || !description || isGenerating}
@@ -372,18 +445,21 @@ export default function CreatePage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
-            className="grid lg:grid-cols-4 gap-6"
+            className="grid lg:grid-cols-[400px_1fr] xl:grid-cols-[450px_1fr] gap-6"
           >
             {/* 목차 사이드바 */}
-            <Card className="lg:col-span-1">
+            <Card className="h-fit max-h-[calc(100vh-8rem)] sticky top-4">
               <CardHeader>
                 <CardTitle className="text-lg">목차</CardTitle>
-                <CardDescription className="text-sm">{outline?.title}</CardDescription>
+                <CardDescription className="text-sm line-clamp-2">{outline?.title}</CardDescription>
+                {outline?.subtitle && (
+                  <p className="text-xs text-muted-foreground mt-1">{outline.subtitle}</p>
+                )}
               </CardHeader>
               <CardContent>
                 <div className="mb-4 space-y-2">
-                  <Button 
-                    className="w-full" 
+                  <Button
+                    className="w-full"
                     size="sm"
                     onClick={handleGenerateAllChapters}
                     disabled={isGenerating || generatedChapters.size === outline?.chapters.length}
@@ -419,39 +495,41 @@ export default function CreatePage() {
                     </DialogContent>
                   </Dialog>
                 </div>
-                
-                <ScrollArea className="h-[500px]">
-                  <div className="space-y-1">
+
+                <ScrollArea className="h-[calc(100vh-28rem)] pr-4">
+                  <div className="space-y-3">
                     {outline?.chapters.map((chapter, index) => (
                       <Button
                         key={index}
                         variant={selectedChapter === index ? 'default' : 'ghost'}
-                        className="w-full justify-start text-left p-2"
+                        className="w-full justify-start text-left py-3 px-4 h-auto"
                         onClick={() => setSelectedChapter(index)}
                       >
-                        <div className="flex items-center w-full">
-                          <span className="mr-2 text-xs font-bold">{chapter.number}</span>
+                        <div className="flex items-start w-full gap-2">
+                          <span className="text-xs font-bold mt-0.5 flex-shrink-0">{chapter.number}</span>
                           <div className="flex-1 min-w-0">
-                            <div className="text-sm truncate">{chapter.title}</div>
+                            <div className="text-sm font-medium">
+                              <span className="line-clamp-2">{chapter.title}</span>
+                            </div>
                           </div>
                           {generatedChapters.has(index) && (
-                            <CheckCircle className="w-4 h-4 ml-1 text-green-500 flex-shrink-0" />
+                            <CheckCircle className="w-4 h-4 ml-1 text-green-500 flex-shrink-0 mt-0.5" />
                           )}
                         </div>
                       </Button>
                     ))}
                   </div>
                 </ScrollArea>
-                
+
                 <div className="mt-4 pt-4 border-t">
                   <div className="text-sm text-muted-foreground mb-2">
                     진행률: {generatedChapters.size}/{outline?.chapters.length}
                   </div>
                   <div className="w-full bg-secondary h-2 rounded-full overflow-hidden">
-                    <div 
+                    <div
                       className="h-full bg-primary transition-all"
-                      style={{ 
-                        width: `${(generatedChapters.size / (outline?.chapters.length || 1)) * 100}%` 
+                      style={{
+                        width: `${(generatedChapters.size / (outline?.chapters.length || 1)) * 100}%`
                       }}
                     />
                   </div>
@@ -460,20 +538,13 @@ export default function CreatePage() {
             </Card>
 
             {/* 콘텐츠 영역 */}
-            <Card className="lg:col-span-3">
+            <Card>
               <CardHeader>
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
                     <CardTitle className="text-xl">
                       Chapter {outline?.chapters[selectedChapter].number}: {outline?.chapters[selectedChapter].title}
                     </CardTitle>
-                    <CardDescription className="mt-2">
-                      {outline?.chapters[selectedChapter].keyPoints.map((point, i) => (
-                        <Badge key={i} variant="secondary" className="mr-2 mt-1">
-                          {point}
-                        </Badge>
-                      ))}
-                    </CardDescription>
                   </div>
                   <div className="flex gap-2">
                     {outline?.chapters[selectedChapter].content && (
@@ -517,11 +588,80 @@ export default function CreatePage() {
                       ) : (
                         <>
                           <Sparkles className="w-4 h-4 mr-1" />
-                          {generatedChapters.has(selectedChapter) ? '재생성' : '생성'}
+                          {generatedChapters.has(selectedChapter) ? '재생성' : '내용 생성'}
                         </>
                       )}
                     </Button>
                   </div>
+                </div>
+
+                {/* 편집 가능한 핵심 포인트 & 아하모먼트 */}
+                <div className="mt-4 p-4 bg-muted/50 rounded-lg border space-y-4">
+                  {/* 핵심 포인트 */}
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="text-sm font-semibold text-foreground">📌 핵심 포인트</div>
+                      {!editingKeyPoints && (
+                        <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={handleStartEditKeyPoints}>
+                          수정
+                        </Button>
+                      )}
+                    </div>
+                    {editingKeyPoints ? (
+                      <div className="space-y-2">
+                        <Textarea
+                          value={tempKeyPoints}
+                          onChange={(e) => setTempKeyPoints(e.target.value)}
+                          placeholder="각 줄에 하나씩 입력하세요"
+                          rows={4}
+                          className="text-sm"
+                        />
+                        <div className="flex gap-2">
+                          <Button size="sm" onClick={handleSaveKeyPoints}>저장</Button>
+                          <Button size="sm" variant="outline" onClick={() => setEditingKeyPoints(false)}>취소</Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-sm text-muted-foreground">
+                        {outline?.chapters[selectedChapter].keyPoints.join(' • ')}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 아하모먼트 (첫 챕터만) */}
+                  {outline?.chapters[selectedChapter].number === 1 && (
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="text-sm font-semibold text-primary flex items-center gap-1">
+                          💡 핵심 인사이트
+                        </div>
+                        {!editingAhaMoment && (
+                          <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={handleStartEditAhaMoment}>
+                            수정
+                          </Button>
+                        )}
+                      </div>
+                      {editingAhaMoment ? (
+                        <div className="space-y-2">
+                          <Textarea
+                            value={tempAhaMoment}
+                            onChange={(e) => setTempAhaMoment(e.target.value)}
+                            placeholder="독자가 경험할 핵심 깨달음을 입력하세요"
+                            rows={3}
+                            className="text-sm"
+                          />
+                          <div className="flex gap-2">
+                            <Button size="sm" onClick={handleSaveAhaMoment}>저장</Button>
+                            <Button size="sm" variant="outline" onClick={() => setEditingAhaMoment(false)}>취소</Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="text-sm text-foreground">
+                          {outline?.chapters[selectedChapter].ahaMoment || '아하모먼트를 추가하세요'}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </CardHeader>
               <CardContent>
@@ -538,7 +678,7 @@ export default function CreatePage() {
                       <TabsTrigger value="markdown" className="flex-1">마크다운</TabsTrigger>
                       <TabsTrigger value="stats" className="flex-1">통계</TabsTrigger>
                     </TabsList>
-                    
+
                     <TabsContent value="preview">
                       <ScrollArea className="h-[600px] w-full rounded-md border p-6">
                         {outline?.chapters[selectedChapter].content ? (
@@ -552,13 +692,13 @@ export default function CreatePage() {
                             <FileText className="w-12 h-12 mb-4" />
                             <p className="text-center">
                               아직 생성된 내용이 없습니다
-                              <br />상단의 '생성' 버튼을 클릭해주세요
+                              <br />상단의 '내용 생성' 버튼을 클릭해주세요
                             </p>
                           </div>
                         )}
                       </ScrollArea>
                     </TabsContent>
-                    
+
                     <TabsContent value="markdown">
                       <ScrollArea className="h-[600px] w-full rounded-md border">
                         <pre className="p-6 text-sm">
@@ -568,7 +708,7 @@ export default function CreatePage() {
                         </pre>
                       </ScrollArea>
                     </TabsContent>
-                    
+
                     <TabsContent value="stats">
                       <div className="p-6 space-y-4">
                         <div className="grid grid-cols-2 gap-4">

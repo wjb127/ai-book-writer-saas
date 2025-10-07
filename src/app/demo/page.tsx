@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import {
   BookOpen,
@@ -52,6 +52,16 @@ export default function DemoPage() {
   const [selectedChapter, setSelectedChapter] = useState<number>(0)
   const [isGenerating, setIsGenerating] = useState(false)
   const [generatedChapters, setGeneratedChapters] = useState<Set<number>>(new Set())
+  const [editingKeyPoints, setEditingKeyPoints] = useState(false)
+  const [editingAhaMoment, setEditingAhaMoment] = useState(false)
+  const [tempKeyPoints, setTempKeyPoints] = useState<string>('')
+  const [tempAhaMoment, setTempAhaMoment] = useState<string>('')
+
+  // 챕터 변경 시 편집 모드 종료
+  useEffect(() => {
+    setEditingKeyPoints(false)
+    setEditingAhaMoment(false)
+  }, [selectedChapter])
 
   // 빠른 시작 예시
   const quickStartExamples = [
@@ -72,6 +82,33 @@ export default function DemoPage() {
   const loadExample = (example: typeof quickStartExamples[0]) => {
     setTopic(example.topic)
     setDescription(example.description)
+  }
+
+  const handleSaveKeyPoints = () => {
+    if (!outline) return
+    const points = tempKeyPoints.split('\n').filter(p => p.trim())
+    const updatedChapters = [...outline.chapters]
+    updatedChapters[selectedChapter].keyPoints = points
+    setOutline({ ...outline, chapters: updatedChapters })
+    setEditingKeyPoints(false)
+  }
+
+  const handleSaveAhaMoment = () => {
+    if (!outline) return
+    const updatedChapters = [...outline.chapters]
+    updatedChapters[selectedChapter].ahaMoment = tempAhaMoment
+    setOutline({ ...outline, chapters: updatedChapters })
+    setEditingAhaMoment(false)
+  }
+
+  const handleStartEditKeyPoints = () => {
+    setTempKeyPoints(outline?.chapters[selectedChapter].keyPoints.join('\n') || '')
+    setEditingKeyPoints(true)
+  }
+
+  const handleStartEditAhaMoment = () => {
+    setTempAhaMoment(outline?.chapters[selectedChapter].ahaMoment || '')
+    setEditingAhaMoment(true)
   }
 
   const handleGenerateOutline = async () => {
@@ -375,22 +412,22 @@ ${chapter.keyPoints[0]}에 대한 내용이 여기에 표시됩니다...
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
-            className="grid lg:grid-cols-3 gap-6"
+            className="grid lg:grid-cols-[400px_1fr] xl:grid-cols-[450px_1fr] gap-6"
           >
             {/* 목차 사이드바 */}
-            <Card className="lg:col-span-1">
-              <CardHeader>
+            <Card className="h-fit max-h-[calc(100vh-8rem)] sticky top-4">
+              <CardHeader className="pb-4">
                 <CardTitle className="text-lg">목차</CardTitle>
                 <CardDescription>
-                  <div className="font-semibold text-foreground">{outline?.title}</div>
+                  <div className="font-semibold text-foreground leading-snug">{outline?.title}</div>
                   {outline?.subtitle && (
-                    <div className="text-xs mt-1">{outline.subtitle}</div>
+                    <div className="text-xs mt-1.5 leading-relaxed">{outline.subtitle}</div>
                   )}
                 </CardDescription>
               </CardHeader>
-              <CardContent>
-                <ScrollArea className="h-[600px]">
-                  <div className="space-y-2">
+              <CardContent className="pt-0">
+                <ScrollArea className="h-[calc(100vh-20rem)] pr-4">
+                  <div className="space-y-3 pb-2">
                     {outline?.chapters.map((chapter, index) => (
                       <motion.div
                         key={index}
@@ -400,29 +437,29 @@ ${chapter.keyPoints[0]}에 대한 내용이 여기에 표시됩니다...
                       >
                         <Button
                           variant={selectedChapter === index ? 'default' : 'ghost'}
-                          className="w-full justify-start text-left relative"
+                          className="w-full justify-start text-left relative h-auto py-3 px-4"
                           onClick={() => setSelectedChapter(index)}
                           disabled={chapter.isLocked}
                         >
-                          <div className="flex items-start w-full">
-                            <span className="mr-3 font-bold">{chapter.number}.</span>
-                            <div className="flex-1">
-                              <div className="font-medium flex items-center gap-2 flex-wrap">
-                                {chapter.title}
+                          <div className="flex items-start w-full gap-3">
+                            <span className="font-bold text-base mt-0.5 shrink-0">{chapter.number}.</span>
+                            <div className="flex-1 min-w-0">
+                              <div className="font-medium flex items-center gap-2 leading-relaxed">
+                                <span className="line-clamp-2">{chapter.title}</span>
                                 {chapter.ahaMoment && (
-                                  <Badge variant="default" className="text-xs">
+                                  <Badge variant="default" className="text-xs shrink-0 ml-1">
                                     💡 아하!
                                   </Badge>
                                 )}
-                                {chapter.isLocked && <Lock className="w-3 h-3" />}
-                                {chapter.isPreview && <Eye className="w-3 h-3" />}
+                                {chapter.isLocked && <Lock className="w-3 h-3 shrink-0 ml-1" />}
+                                {chapter.isPreview && <Eye className="w-3 h-3 shrink-0 ml-1" />}
                               </div>
-                              <div className="text-xs text-muted-foreground mt-1">
+                              <div className="text-xs text-muted-foreground mt-2">
                                 약 {chapter.estimatedWords.toLocaleString()}자
                               </div>
                             </div>
                             {generatedChapters.has(index) && (
-                              <Badge variant="secondary" className="ml-2">
+                              <Badge variant="secondary" className="shrink-0">
                                 <FileText className="w-3 h-3" />
                               </Badge>
                             )}
@@ -451,7 +488,7 @@ ${chapter.keyPoints[0]}에 대한 내용이 여기에 표시됩니다...
             </Card>
 
             {/* 콘텐츠 영역 */}
-            <Card className="lg:col-span-2">
+            <Card>
               <CardHeader>
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
@@ -465,19 +502,83 @@ ${chapter.keyPoints[0]}에 대한 내용이 여기에 표시됩니다...
                         </Badge>
                       )}
                     </div>
-                    <CardDescription className="mt-2">
-                      핵심 포인트: {outline?.chapters[selectedChapter].keyPoints.join(' • ')}
-                    </CardDescription>
-                    {outline?.chapters[selectedChapter].ahaMoment && (
-                      <div className="mt-3 p-3 bg-primary/10 rounded-md border border-primary/20">
-                        <div className="text-sm font-medium text-primary mb-1">
-                          💡 이 챕터의 핵심 인사이트
+                    <div className="mt-4 p-4 bg-muted/50 rounded-lg border space-y-4">
+                      {/* 핵심 포인트 */}
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="text-sm font-semibold text-foreground">📌 핵심 포인트</div>
+                          {!editingKeyPoints && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 text-xs"
+                              onClick={handleStartEditKeyPoints}
+                            >
+                              수정
+                            </Button>
+                          )}
                         </div>
-                        <div className="text-sm text-foreground">
-                          {outline.chapters[selectedChapter].ahaMoment}
-                        </div>
+                        {editingKeyPoints ? (
+                          <div className="space-y-2">
+                            <Textarea
+                              value={tempKeyPoints}
+                              onChange={(e) => setTempKeyPoints(e.target.value)}
+                              placeholder="각 줄에 하나씩 입력하세요"
+                              rows={4}
+                              className="text-sm"
+                            />
+                            <div className="flex gap-2">
+                              <Button size="sm" onClick={handleSaveKeyPoints}>저장</Button>
+                              <Button size="sm" variant="outline" onClick={() => setEditingKeyPoints(false)}>취소</Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="text-sm text-muted-foreground">
+                            {outline?.chapters[selectedChapter].keyPoints.join(' • ')}
+                          </div>
+                        )}
                       </div>
-                    )}
+
+                      {/* 아하모먼트 (첫 챕터만) */}
+                      {outline?.chapters[selectedChapter].number === 1 && (
+                        <div>
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="text-sm font-semibold text-primary flex items-center gap-1">
+                              💡 핵심 인사이트
+                            </div>
+                            {!editingAhaMoment && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 text-xs"
+                                onClick={handleStartEditAhaMoment}
+                              >
+                                수정
+                              </Button>
+                            )}
+                          </div>
+                          {editingAhaMoment ? (
+                            <div className="space-y-2">
+                              <Textarea
+                                value={tempAhaMoment}
+                                onChange={(e) => setTempAhaMoment(e.target.value)}
+                                placeholder="독자가 경험할 핵심 깨달음을 입력하세요"
+                                rows={3}
+                                className="text-sm"
+                              />
+                              <div className="flex gap-2">
+                                <Button size="sm" onClick={handleSaveAhaMoment}>저장</Button>
+                                <Button size="sm" variant="outline" onClick={() => setEditingAhaMoment(false)}>취소</Button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="text-sm text-foreground">
+                              {outline?.chapters[selectedChapter].ahaMoment || '아하모먼트를 추가하세요'}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
                   {outline?.chapters[selectedChapter].isLocked ? (
                     <Link href="/pricing">
