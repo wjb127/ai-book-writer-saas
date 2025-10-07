@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { generateFirstChapterWithAha, generateChapterContent } from '@/lib/ai/anthropic'
+import { NextRequest } from 'next/server'
+import { generateWithClaudeStream, MODELS } from '@/lib/ai/anthropic'
 import { logger } from '@/lib/logger'
 
 export async function POST(request: NextRequest) {
@@ -18,17 +18,26 @@ export async function POST(request: NextRequest) {
 
     if (!bookTitle || !chapter) {
       logger.warn('Missing required fields', { bookTitle: !!bookTitle, chapter: !!chapter })
-      return NextResponse.json(
-        { error: '필수 정보가 누락되었습니다' },
-        { status: 400 }
-      )
+
+      const encoder = new TextEncoder()
+      const stream = new ReadableStream({
+        start(controller) {
+          controller.enqueue(encoder.encode(JSON.stringify({ error: '필수 정보가 누락되었습니다' })))
+          controller.close()
+        }
+      })
+
+      return new Response(stream, {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      })
     }
 
     // AI API 키 확인
     const hasAnthropic = process.env.ANTHROPIC_API_KEY &&
       process.env.ANTHROPIC_API_KEY !== 'your_anthropic_api_key_here'
 
-    // API 키가 없는 경우 샘플 콘텐츠 반환
+    // API 키가 없는 경우 샘플 콘텐츠 반환 (스트리밍 형태로)
     if (!hasAnthropic) {
       logger.info('Using sample content (no API key)', { chapterNumber: chapter.number })
 
@@ -100,62 +109,201 @@ ${chapter.keyPoints[2]}는 이 장의 마지막 핵심 주제입니다.
 
 *이 콘텐츠는 AI에 의해 생성되었습니다. 실제 서비스에서는 선택한 AI 모델(GPT-4, Claude 등)을 사용하여 더욱 풍부하고 전문적인 콘텐츠가 생성됩니다.*`
 
+      // 스트리밍 형태로 샘플 콘텐츠 전송
+      const encoder = new TextEncoder()
+      const stream = new ReadableStream({
+        start(controller) {
+          // 청크로 나눠서 전송 (타이핑 효과)
+          const chunkSize = 50
+          for (let i = 0; i < sampleContent.length; i += chunkSize) {
+            const chunk = sampleContent.slice(i, i + chunkSize)
+            controller.enqueue(encoder.encode(chunk))
+          }
+          controller.close()
+        }
+      })
+
       const duration = Date.now() - startTime
       logger.apiResponse('POST', '/api/generate-chapter', 200, duration)
 
-      return NextResponse.json({ content: sampleContent })
+      return new Response(stream, {
+        headers: {
+          'Content-Type': 'text/plain; charset=utf-8',
+          'Transfer-Encoding': 'chunked',
+        }
+      })
     }
 
-    let content: string
+    // 프롬프트 생성
+    let prompt: string
+    let model: string
+    let systemPrompt: string | undefined
 
-    // 고급 AI 사용 (첫 챕터는 특별 최적화)
+    // 첫 챕터: 특별 프롬프트 + Sonnet 4.5
     if (chapter.number === 1 && chapter.ahaMoment) {
-      logger.info('Generating first chapter with AI', {
+      logger.info('Generating first chapter with AI (streaming)', {
         chapterNumber: chapter.number,
         bookTitle,
         hasAhaMoment: true
       })
 
-      // 첫 챕터: 독자를 사로잡는 특별 생성
-      content = await generateFirstChapterWithAha(
-        bookTitle,
-        chapter.title,
-        chapter.keyPoints,
-        chapter.ahaMoment,
-        chapter.estimatedWords
-      )
+      model = MODELS.PREMIUM
+
+      systemPrompt = `You are a master storyteller and educator. Your specialty is creating "Aha moments" - those powerful instances when readers suddenly understand something in a new way.
+
+Your writing style is:
+- Clear and conversational
+- Rich with concrete examples
+- Emotionally engaging
+- Story-driven
+- Transformational
+
+You write in Korean with natural, engaging language.`
+
+      prompt = `Write the first chapter of an ebook that will create an immediate "Aha moment" for readers.
+
+<book_title>${bookTitle}</book_title>
+<chapter_title>${chapter.title}</chapter_title>
+<target_words>${chapter.estimatedWords}</target_words>
+
+<aha_moment>
+The key insight readers must experience: ${chapter.ahaMoment}
+</aha_moment>
+
+<key_points>
+${chapter.keyPoints.map((point: string, i: number) => `${i + 1}. ${point}`).join('\n')}
+</key_points>
+
+<writing_instructions>
+1. **Hook immediately**: Start with a surprising fact, question, or scenario that challenges assumptions
+
+2. **Build towards the Aha moment**: Structure the chapter to naturally lead readers to the key insight
+
+3. **Use concrete examples**: Include real scenarios, specific numbers, vivid descriptions
+
+4. **Create emotional connection**: Address reader pain points and aspirations
+
+5. **Include a story**: Weave in a narrative that illustrates the concept
+
+6. **End with transformation**: Show readers how their understanding has changed
+
+7. **Use proven principles**: Make every section clear, unexpected, concrete, credible, emotional, and story-driven
+</writing_instructions>
+
+<structure>
+- **강렬한 도입** (200-300 words): 독자의 기존 생각을 뒤흔드는 시작
+- **문제 제기** (300-400 words): 독자가 공감할 수 있는 현실적 문제
+- **핵심 인사이트** (500-700 words): 깨달음을 전달하는 메인 섹션
+- **구체적 예시/스토리** (400-500 words): 개념을 생생하게 만드는 실제 사례
+- **실천 가능한 통찰** (300-400 words): 독자가 바로 적용할 수 있는 것
+- **다음 단계 예고** (200-300 words): 2장에 대한 기대감 형성
+</structure>
+
+Write the complete chapter in markdown format. Make it so compelling that readers can't wait to continue to the next chapter.
+
+Use these formatting guidelines:
+- Start with # for chapter title
+- Use ## for major sections
+- Use ### for subsections
+- Include **bold** for key concepts
+- Use > blockquotes for important insights
+- Include bullet points and numbered lists
+- Add 💡 emoji for key insights
+- Add ⚡ emoji for actionable tips
+
+Write in natural, conversational Korean that feels like a friend sharing an exciting discovery.`
     } else {
-      logger.info('Generating chapter with AI', {
+      // 일반 챕터: 표준 프롬프트 + Haiku 3.5
+      logger.info('Generating chapter with AI (streaming)', {
         chapterNumber: chapter.number,
         bookTitle
       })
 
-      // 일반 챕터
-      content = await generateChapterContent(
-        bookTitle,
-        chapter.title,
-        chapter.number,
-        chapter.keyPoints,
-        chapter.estimatedWords
-      )
+      model = MODELS.FAST
+
+      systemPrompt = `You are an expert ebook author who writes engaging, practical content in Korean.
+
+Your writing is:
+- Clear and well-structured
+- Rich with examples
+- Actionable and practical
+- Engaging and readable`
+
+      prompt = `Write Chapter ${chapter.number} for the ebook "${bookTitle}".
+
+<chapter_title>${chapter.title}</chapter_title>
+<target_words>${chapter.estimatedWords}</target_words>
+
+<key_points>
+${chapter.keyPoints.map((point: string, i: number) => `${i + 1}. ${point}`).join('\n')}
+</key_points>
+
+<requirements>
+- Write approximately ${chapter.estimatedWords} words in Korean
+- Use clear, engaging language
+- Include practical examples
+- Structure with proper sections and subsections
+- Maintain an educational yet conversational tone
+- Add introduction and conclusion
+- Use markdown formatting effectively
+</requirements>
+
+Write the complete chapter content in markdown format.`
     }
 
-    const duration = Date.now() - startTime
-    logger.apiResponse('POST', '/api/generate-chapter', 200, duration)
-    logger.info('Chapter generated successfully', {
-      chapterNumber: chapter.number,
-      contentLength: content.length
+    // 스트리밍 응답 생성
+    const encoder = new TextEncoder()
+
+    const stream = new ReadableStream({
+      async start(controller) {
+        try {
+          await generateWithClaudeStream(
+            prompt,
+            model,
+            systemPrompt,
+            (chunk) => {
+              // 각 청크를 즉시 전송
+              controller.enqueue(encoder.encode(chunk))
+            }
+          )
+
+          controller.close()
+
+          const duration = Date.now() - startTime
+          logger.apiResponse('POST', '/api/generate-chapter', 200, duration)
+          logger.info('Chapter generated successfully (streaming)', {
+            chapterNumber: chapter.number,
+            model: model === MODELS.PREMIUM ? 'Sonnet 4.5' : 'Haiku 3.5'
+          })
+        } catch (error) {
+          logger.error('Streaming generation failed', error)
+          controller.error(error)
+        }
+      }
     })
 
-    return NextResponse.json({ content })
+    return new Response(stream, {
+      headers: {
+        'Content-Type': 'text/plain; charset=utf-8',
+        'Transfer-Encoding': 'chunked',
+      }
+    })
   } catch (error) {
     const duration = Date.now() - startTime
     logger.error('Chapter generation failed', error, { duration: `${duration}ms` })
     logger.apiResponse('POST', '/api/generate-chapter', 500, duration)
 
-    return NextResponse.json(
-      { error: '챕터 생성 중 오류가 발생했습니다' },
-      { status: 500 }
-    )
+    const encoder = new TextEncoder()
+    const stream = new ReadableStream({
+      start(controller) {
+        controller.enqueue(encoder.encode(JSON.stringify({ error: '챕터 생성 중 오류가 발생했습니다' })))
+        controller.close()
+      }
+    })
+
+    return new Response(stream, {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    })
   }
 }

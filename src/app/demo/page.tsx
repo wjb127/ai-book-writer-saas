@@ -179,7 +179,7 @@ ${chapter.keyPoints[0]}에 대한 내용이 여기에 표시됩니다...
         return
       }
 
-      // 첫 번째 챕터만 실제 API 호출
+      // 첫 번째 챕터만 실제 API 호출 (스트리밍)
       const response = await fetch('/api/generate-chapter', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -198,11 +198,27 @@ ${chapter.keyPoints[0]}에 대한 내용이 여기에 표시됩니다...
 
       if (!response.ok) throw new Error('Failed to generate chapter')
 
-      const data = await response.json()
+      // 스트리밍 응답 처리
+      const reader = response.body?.getReader()
+      const decoder = new TextDecoder()
 
-      const updatedChapters = [...outline.chapters]
-      updatedChapters[chapterIndex].content = data.content
-      setOutline({ ...outline, chapters: updatedChapters })
+      if (!reader) throw new Error('No reader available')
+
+      let fullContent = ''
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+
+        const chunk = decoder.decode(value, { stream: true })
+        fullContent += chunk
+
+        // 실시간으로 UI 업데이트
+        const updatedChapters = [...outline.chapters]
+        updatedChapters[chapterIndex].content = fullContent
+        setOutline({ ...outline, chapters: updatedChapters })
+      }
+
       setGeneratedChapters(prev => new Set(prev).add(chapterIndex))
     } catch (error) {
       console.error('Error generating chapter:', error)

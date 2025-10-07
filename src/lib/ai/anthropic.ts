@@ -5,8 +5,15 @@ const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 })
 
-// 최신 고급 AI 모델
-const DEFAULT_MODEL = 'claude-sonnet-4-5-20250929'
+// AI 모델 설정
+export const MODELS = {
+  // 최고 품질 (첫 챕터, 복잡한 작업)
+  PREMIUM: 'claude-sonnet-4-5-20250929',
+  // 빠른 속도 (목차, 일반 챕터) - TTFT 0.36s
+  FAST: 'claude-3-5-haiku-20241022',
+} as const
+
+const DEFAULT_MODEL = MODELS.PREMIUM
 
 export async function generateWithClaude(prompt: string, model: string = DEFAULT_MODEL) {
   const startTime = Date.now()
@@ -46,6 +53,76 @@ export async function generateWithClaude(prompt: string, model: string = DEFAULT
 }
 
 /**
+ * 스트리밍 지원 Claude 생성
+ * - 실시간 토큰 전송으로 체감 속도 향상
+ * - TTFT (Time To First Token) 최적화
+ */
+export async function generateWithClaudeStream(
+  prompt: string,
+  model: string = DEFAULT_MODEL,
+  systemPrompt?: string,
+  onChunk?: (text: string) => void
+) {
+  const startTime = Date.now()
+  let ttft: number | null = null
+
+  try {
+    logger.aiRequest('Claude API call (streaming)', {
+      model,
+      promptLength: prompt.length,
+      hasSystemPrompt: !!systemPrompt
+    })
+
+    // Anthropic SDK의 .stream() 메서드 사용 (공식 방법)
+    const stream = anthropic.messages
+      .stream({
+        model,
+        max_tokens: 8000,
+        temperature: 0.7,
+        ...(systemPrompt && { system: systemPrompt }),
+        messages: [{ role: 'user', content: prompt }],
+      })
+      .on('text', (text) => {
+        // 첫 토큰 시간 측정
+        if (ttft === null) {
+          ttft = Date.now() - startTime
+          logger.debug('First token received', { ttft: `${ttft}ms` })
+        }
+
+        // 콜백으로 실시간 전송
+        if (onChunk) {
+          onChunk(text)
+        }
+      })
+
+    // 최종 메시지 대기
+    const finalMessage = await stream.finalMessage()
+    const duration = Date.now() - startTime
+    const tokensUsed = finalMessage.usage.input_tokens + finalMessage.usage.output_tokens
+
+    logger.aiResponse('Claude API call (streaming)', duration, tokensUsed)
+    logger.debug('Claude streaming details', {
+      ttft: ttft ? `${ttft}ms` : 'N/A',
+      totalDuration: `${duration}ms`,
+      inputTokens: finalMessage.usage.input_tokens,
+      outputTokens: finalMessage.usage.output_tokens,
+      stopReason: finalMessage.stop_reason
+    })
+
+    // 최종 텍스트 반환
+    return finalMessage.content[0].type === 'text' ? finalMessage.content[0].text : ''
+  } catch (error) {
+    const duration = Date.now() - startTime
+    logger.error('Claude streaming API call failed', error, {
+      model,
+      duration: `${duration}ms`,
+      ttft: ttft ? `${ttft}ms` : 'N/A'
+    })
+    throw error
+  }
+}
+
+/**
  * 독자를 사로잡는 eBook 아웃라인 생성
  * - 명확한 핵심 메시지
  * - 호기심을 자극하는 인사이트
@@ -56,7 +133,7 @@ export async function generateOutlineWithStickiness(
   topic: string,
   description: string
 ) {
-  logger.info('Starting outline generation', { topic })
+  logger.info('Starting outline generation (Haiku 3.5)', { topic })
 
   const systemPrompt = `You are an expert ebook author and educator who specializes in creating compelling, memorable content that hooks readers immediately.
 
@@ -97,13 +174,15 @@ Return the outline in the following JSON format:
 
 Make the first chapter title especially compelling - it should promise and deliver a paradigm-shifting insight that makes readers immediately want to continue.`
 
-  const response = await generateWithClaude(prompt, DEFAULT_MODEL)
+  // Haiku 3.5 사용 (빠른 속도)
+  const response = await generateWithClaude(prompt, MODELS.FAST)
 
   // JSON 추출
   const jsonMatch = response.match(/\{[\s\S]*\}/)
   if (jsonMatch) {
     const outline = JSON.parse(jsonMatch[0])
     logger.info('Outline generation completed', {
+      model: 'Haiku 3.5',
       chaptersCount: outline.chapters?.length,
       hasSubtitle: !!outline.subtitle
     })
@@ -124,7 +203,7 @@ export async function generateFirstChapterWithAha(
   ahaMoment: string,
   targetWords: number = 2500
 ) {
-  logger.info('Starting first chapter generation', {
+  logger.info('Starting first chapter generation (Sonnet 4.5)', {
     bookTitle,
     targetWords,
     hasAhaMoment: !!ahaMoment
@@ -194,8 +273,10 @@ Use these formatting guidelines:
 
 Write in natural, conversational Korean that feels like a friend sharing an exciting discovery.`
 
-  const content = await generateWithClaude(prompt, DEFAULT_MODEL)
+  // Sonnet 4.5 사용 (최고 품질)
+  const content = await generateWithClaude(prompt, MODELS.PREMIUM)
   logger.info('First chapter generation completed', {
+    model: 'Sonnet 4.5',
     contentLength: content.length
   })
 
@@ -212,7 +293,7 @@ export async function generateChapterContent(
   keyPoints: string[],
   targetWords: number = 2500
 ) {
-  logger.info('Starting chapter generation', {
+  logger.info('Starting chapter generation (Haiku 3.5)', {
     bookTitle,
     chapterNumber,
     targetWords
@@ -247,8 +328,10 @@ ${keyPoints.map((point, i) => `${i + 1}. ${point}`).join('\n')}
 
 Write the complete chapter content in markdown format.`
 
-  const content = await generateWithClaude(prompt, DEFAULT_MODEL)
+  // Haiku 3.5 사용 (빠른 속도)
+  const content = await generateWithClaude(prompt, MODELS.FAST)
   logger.info('Chapter generation completed', {
+    model: 'Haiku 3.5',
     chapterNumber,
     contentLength: content.length
   })
