@@ -3,20 +3,15 @@
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   BookOpen,
-  Sparkles,
-  Clock,
-  Download,
   CheckCircle,
   ArrowRight,
-  Zap,
   Shield,
   X,
-  ChevronDown,
-  TrendingUp
+  ChevronDown
 } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { useState, useEffect } from 'react'
@@ -297,7 +292,7 @@ export default function LandingPage() {
             className="max-w-4xl mx-auto text-center mb-12"
           >
             <h2 className="text-3xl md:text-5xl font-bold mb-6 text-white">
-              오늘도 <span className="text-amber-400">"언젠가는 책 쓸거야"</span>
+              오늘도 <span className="text-amber-400">&ldquo;언젠가는 책 쓸거야&rdquo;</span>
               <br />
               하고 미루셨나요?
             </h2>
@@ -325,7 +320,7 @@ export default function LandingPage() {
                     <br />
                     • 1만원도 못 버는 인생
                     <br />
-                    • 계속 "할걸" 후회만
+                    • 계속 &ldquo;할걸&rdquo; 후회만
                   </p>
                 </div>
 
@@ -338,7 +333,7 @@ export default function LandingPage() {
                     <br />
                     • 9,900원으로 전자책 사업 시작
                     <br />
-                    • 평생 "해봤다" 자부심
+                    • 평생 &ldquo;해봤다&rdquo; 자부심
                   </p>
                 </div>
               </div>
@@ -495,7 +490,7 @@ export default function LandingPage() {
                 <div className="space-y-4 mb-6">
                   <div className="bg-slate-800/50 p-4 rounded-lg border border-slate-700">
                     <p className="text-xs md:text-sm text-white/50 mb-1">2024년 1월</p>
-                    <p className="text-sm md:text-base font-medium text-white">"전자책 쓰자! 부수입 만들자!"</p>
+                    <p className="text-sm md:text-base font-medium text-white">&ldquo;전자책 쓰자! 부수입 만들자!&rdquo;</p>
                   </div>
 
                   <div className="bg-slate-800/50 p-4 rounded-lg border border-slate-700">
@@ -505,7 +500,7 @@ export default function LandingPage() {
 
                   <div className="bg-slate-800/50 p-4 rounded-lg border border-slate-700">
                     <p className="text-xs md:text-sm text-white/50 mb-1">2024년 6월</p>
-                    <p className="text-sm md:text-base font-medium text-white">3챕터 쓰고 포기... "나중에 다시"</p>
+                    <p className="text-sm md:text-base font-medium text-white">3챕터 쓰고 포기... &ldquo;나중에 다시&rdquo;</p>
                   </div>
 
                   <div className="bg-slate-950 p-4 rounded-lg border-2 border-white/30">
@@ -513,7 +508,7 @@ export default function LandingPage() {
                     <p className="text-sm md:text-base font-bold text-white">
                       💔 결과: 전자책 0권 • 추가 수입 0원
                       <br />
-                      여전히 "언젠가는..." 혼잣말
+                      여전히 &ldquo;언젠가는&hellip;&rdquo; 혼잣말
                     </p>
                   </div>
                 </div>
@@ -552,7 +547,7 @@ export default function LandingPage() {
                 <div className="space-y-4 mb-6">
                   <div className="bg-slate-800/70 p-4 rounded-lg border border-amber-400/30">
                     <p className="text-xs md:text-sm text-amber-400 mb-1 font-bold">2024년 1월</p>
-                    <p className="text-sm md:text-base font-medium text-white">"AI Book Writer 써보자!"</p>
+                    <p className="text-sm md:text-base font-medium text-white">&ldquo;AI Book Writer 써보자!&rdquo;</p>
                   </div>
 
                   <div className="bg-slate-800/70 p-4 rounded-lg border border-amber-400/30">
@@ -570,7 +565,7 @@ export default function LandingPage() {
                     <p className="text-sm md:text-base font-bold text-white">
                       ✅ 결과: 전자책 12권 • 월 수입 500만원
                       <br />
-                      "다음 책은 뭐 쓸까?" 고민 중
+                      &ldquo;다음 책은 뭐 쓸까?&rdquo; 고민 중
                     </p>
                   </div>
                 </div>
@@ -590,10 +585,10 @@ export default function LandingPage() {
           <div className="max-w-3xl mx-auto text-center">
             <Card className="p-8 md:p-10 bg-black text-white">
               <h3 className="text-2xl md:text-3xl font-bold mb-6">
-                둘의 차이는 <span className="text-amber-400">'재능'</span>이 아니었습니다
+                둘의 차이는 <span className="text-amber-400">&lsquo;재능&rsquo;</span>이 아니었습니다
               </h3>
               <p className="text-xl md:text-2xl mb-6">
-                <span className="text-amber-400 font-bold">'올바른 도구'</span>를 아는지
+                <span className="text-amber-400 font-bold">&lsquo;올바른 도구&rsquo;</span>를 아는지
                 <br />
                 모르는지의 차이였죠
               </p>
@@ -632,7 +627,7 @@ export default function LandingPage() {
               <Badge className="bg-slate-500 text-white mb-4">미래 A</Badge>
 
               <h3 className="text-2xl md:text-3xl font-bold mb-6 text-amber-400">
-                "아... 그때 그거 해볼걸"
+                &ldquo;아... 그때 그거 해볼걸&rdquo;
               </h3>
 
               <div className="space-y-4 mb-6">
@@ -646,7 +641,7 @@ export default function LandingPage() {
                 </div>
                 <div className="flex items-start gap-3">
                   <X className="w-6 h-6 text-amber-400 flex-shrink-0" />
-                  <p>"언젠가는..." 똑같은 말 반복</p>
+                  <p>&ldquo;언젠가는&hellip;&rdquo; 똑같은 말 반복</p>
                 </div>
                 <div className="flex items-start gap-3">
                   <X className="w-6 h-6 text-amber-400 flex-shrink-0" />
@@ -666,7 +661,7 @@ export default function LandingPage() {
               <Badge className="bg-amber-400 text-slate-950 mb-4 font-bold">미래 B ⭐</Badge>
 
               <h3 className="text-2xl md:text-3xl font-bold mb-6 text-amber-300">
-                "오 진짜 되네?"
+                &ldquo;오 진짜 되네?&rdquo;
               </h3>
 
               <div className="space-y-4 mb-6">
@@ -680,11 +675,11 @@ export default function LandingPage() {
                 </div>
                 <div className="flex items-start gap-3">
                   <CheckCircle className="w-6 h-6 text-amber-300 flex-shrink-0" />
-                  <p className="font-medium">"다음 책은 뭐 쓸까?" 행복한 고민</p>
+                  <p className="font-medium">&ldquo;다음 책은 뭐 쓸까?&rdquo; 행복한 고민</p>
                 </div>
                 <div className="flex items-start gap-3">
                   <CheckCircle className="w-6 h-6 text-amber-300 flex-shrink-0" />
-                  <p className="font-medium">지인들에게 "나 작가야" 자랑</p>
+                  <p className="font-medium">지인들에게 &ldquo;나 작가야&rdquo; 자랑</p>
                 </div>
               </div>
 
@@ -1081,7 +1076,7 @@ export default function LandingPage() {
                 <p className="text-lg md:text-xl font-semibold mb-4 text-white">
                   Q. 그냥 구경만 하면서
                   <br />
-                  <span className="text-amber-400">"나도 할 수 있을 텐데"</span>
+                  <span className="text-amber-400">&ldquo;나도 할 수 있을 텐데&rdquo;</span>
                   <br />
                   혼자 생각만 하실 건가요?
                 </p>
