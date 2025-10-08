@@ -80,18 +80,18 @@ function RealtimeNotifications() {
         >
           <Card className="p-4 bg-white shadow-2xl border-2 border-green-500 max-w-sm">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-green-500 flex items-center justify-center text-white font-bold">
+              <div className="w-12 h-12 rounded-full bg-amber-500 flex items-center justify-center text-white font-bold">
                 {current.name[0]}
               </div>
               <div className="flex-1">
                 <p className="font-bold">
                   {current.name}님이 방금 {current.action}했습니다!
                 </p>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-white/600">
                   {Math.floor(Math.random() * 5) + 1}분 전 • {current.location}
                 </p>
               </div>
-              <CheckCircle className="w-6 h-6 text-green-500" />
+              <CheckCircle className="w-6 h-6 text-amber-500" />
             </div>
           </Card>
         </motion.div>
@@ -120,10 +120,10 @@ function StickyCTA() {
           initial={{ y: 100 }}
           animate={{ y: 0 }}
           exit={{ y: 100 }}
-          className="fixed bottom-0 left-0 right-0 p-4 bg-emerald-600 md:hidden z-50 shadow-2xl"
+          className="fixed bottom-0 left-0 right-0 p-4 bg-slate-800 md:hidden z-50 shadow-2xl"
         >
           <Link href="/create">
-            <Button className="w-full bg-amber-400 hover:bg-amber-500 text-emerald-950 font-bold py-4">
+            <Button className="w-full bg-amber-400 hover:bg-amber-500 text-slate-950 font-bold py-4">
               지금 시작하기 →
             </Button>
           </Link>
@@ -143,7 +143,7 @@ export default function LandingPage() {
       <nav className="border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 sticky top-0 z-40">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <BookOpen className="w-6 h-6 text-emerald-600" />
+            <BookOpen className="w-6 h-6 text-slate-700" />
             <span className="font-bold text-xl">AI Book Writer</span>
           </div>
           <div className="flex items-center space-x-4">
@@ -151,33 +151,29 @@ export default function LandingPage() {
               <Button variant="ghost">무료 체험</Button>
             </Link>
             <Link href="/create">
-              <Button className="bg-emerald-600 hover:bg-emerald-700">지금 시작하기</Button>
+              <Button className="bg-slate-800 hover:bg-slate-900">지금 시작하기</Button>
             </Link>
           </div>
         </div>
       </nav>
 
       {/* Hero Section - 10분 작가 충격 */}
-      <section className="relative min-h-screen bg-gradient-to-br from-emerald-950 via-emerald-900 to-slate-900 overflow-hidden flex items-center">
+      <section className="relative min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-slate-950 overflow-hidden flex items-center">
         {/* 실시간 카운터 */}
         <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-50">
-          <motion.div
-            animate={{ scale: [1, 1.05, 1] }}
-            transition={{ repeat: Infinity, duration: 2 }}
-            className="bg-emerald-500 text-white px-6 py-3 rounded-full font-bold shadow-2xl text-sm md:text-base"
-          >
-            🔥 지금 이 순간 <span className="text-amber-300">127만원</span> 거래 중
-          </motion.div>
+          <div className="bg-amber-400 text-slate-900 px-6 py-2 rounded-full font-semibold shadow-lg text-sm md:text-base">
+            🔥 지금 이 순간 <span className="text-slate-950 font-bold">127만원</span> 거래 중
+          </div>
         </div>
 
-        <div className="container mx-auto px-4 py-20 text-center text-white relative z-10">
+        <div className="container mx-auto px-4 py-24 text-center text-white relative z-10">
           {/* 긴급 알림 배너 */}
           <motion.div
             initial={{ y: -50, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             className="mb-8"
           >
-            <Badge className="bg-amber-400 text-emerald-950 font-bold px-8 py-3 text-lg shadow-2xl">
+            <Badge className="bg-amber-400 text-slate-900 font-semibold px-6 py-2 text-sm md:text-base rounded-full shadow-xl">
               ⚡ 마감 임박: 오늘 신청자 한정 75% 할인 (23명 남음)
             </Badge>
           </motion.div>
@@ -187,10 +183,10 @@ export default function LandingPage() {
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.5 }}
-            className="text-4xl md:text-7xl font-black mb-6 leading-tight"
+            className="text-3xl md:text-5xl font-bold mb-6 leading-tight"
           >
             <span className="block mb-2">150페이지 전자책,</span>
-            <span className="block text-emerald-400 text-5xl md:text-8xl">
+            <span className="block text-amber-400 text-4xl md:text-6xl">
               10분이면 충분합니다
             </span>
           </motion.h1>
@@ -200,7 +196,7 @@ export default function LandingPage() {
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.3 }}
-            className="text-xl md:text-3xl mb-6 font-bold"
+            className="text-lg md:text-2xl mb-6 font-semibold"
           >
             성공하면 <span className="text-amber-400">월 1억 작가</span>
             <br />
@@ -211,11 +207,11 @@ export default function LandingPage() {
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.5 }}
-            className="text-lg md:text-2xl mb-8 opacity-90"
+            className="text-base md:text-xl mb-8 text-white/200"
           >
-            1권당 <span className="text-amber-400 font-bold text-2xl md:text-3xl">9,900원</span>
+            1권당 <span className="text-white font-bold text-xl md:text-2xl">9,900원</span>
             <br />
-            10권 묶음 <span className="text-amber-400 font-bold text-2xl md:text-3xl">69,000원</span> (30% 할인)
+            10권 묶음 <span className="text-white font-bold text-xl md:text-2xl">69,000원</span> (30% 할인)
           </motion.p>
 
           {/* 실시간 통계 카드 */}
@@ -225,17 +221,17 @@ export default function LandingPage() {
             transition={{ delay: 0.7 }}
             className="flex flex-wrap justify-center gap-4 md:gap-6 mb-10"
           >
-            <div className="bg-emerald-900/30 backdrop-blur-lg rounded-lg px-4 md:px-6 py-4 border border-emerald-500/30">
-              <div className="text-3xl md:text-4xl font-bold text-amber-400">2,847명</div>
-              <div className="text-xs md:text-sm">이미 작가가 됨</div>
+            <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl px-4 md:px-6 py-4 border border-slate-700">
+              <div className="text-2xl md:text-3xl font-bold text-amber-400">2,847명</div>
+              <div className="text-xs md:text-sm text-white/300">이미 작가가 됨</div>
             </div>
-            <div className="bg-emerald-900/30 backdrop-blur-lg rounded-lg px-4 md:px-6 py-4 border border-emerald-500/30">
-              <div className="text-3xl md:text-4xl font-bold text-amber-400">10분</div>
-              <div className="text-xs md:text-sm">평균 완성 시간</div>
+            <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl px-4 md:px-6 py-4 border border-slate-700">
+              <div className="text-2xl md:text-3xl font-bold text-amber-400">10분</div>
+              <div className="text-xs md:text-sm text-white/300">평균 완성 시간</div>
             </div>
-            <div className="bg-emerald-900/30 backdrop-blur-lg rounded-lg px-4 md:px-6 py-4 border border-emerald-500/30">
-              <div className="text-3xl md:text-4xl font-bold text-amber-400">98%</div>
-              <div className="text-xs md:text-sm">만족도</div>
+            <div className="bg-slate-800/50 backdrop-blur-lg rounded-xl px-4 md:px-6 py-4 border border-slate-700">
+              <div className="text-2xl md:text-3xl font-bold text-amber-400">98%</div>
+              <div className="text-xs md:text-sm text-white/300">만족도</div>
             </div>
           </motion.div>
 
@@ -249,7 +245,7 @@ export default function LandingPage() {
             <Link href="/create">
               <Button
                 size="lg"
-                className="group bg-amber-400 hover:bg-amber-500 text-emerald-950 font-bold text-lg md:text-2xl px-8 md:px-16 py-6 md:py-8 rounded-full shadow-2xl transform hover:scale-105 transition-all"
+                className="group bg-amber-400 hover:bg-amber-500 text-slate-900 font-bold text-base md:text-lg px-8 md:px-12 py-4 md:py-6 rounded-xl shadow-xl shadow-amber-400/20 hover:shadow-2xl hover:shadow-amber-400/30 transition-all"
               >
                 <span className="flex flex-col items-center gap-2">
                   <span className="flex items-center gap-3">
@@ -292,7 +288,7 @@ export default function LandingPage() {
       </section>
 
       {/* FOMO Section - 손실 회피 */}
-      <section className="py-20 bg-gradient-to-b from-slate-900 via-slate-800 to-black text-white">
+      <section className="py-24 bg-gradient-to-b from-slate-900 to-slate-800">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 50 }}
@@ -300,31 +296,31 @@ export default function LandingPage() {
             viewport={{ once: true }}
             className="max-w-4xl mx-auto text-center mb-12"
           >
-            <h2 className="text-3xl md:text-6xl font-black mb-6">
+            <h2 className="text-3xl md:text-5xl font-bold mb-6 text-white">
               오늘도 <span className="text-amber-400">"언젠가는 책 쓸거야"</span>
               <br />
               하고 미루셨나요?
             </h2>
 
-            <div className="bg-emerald-900/20 backdrop-blur-lg rounded-lg p-6 md:p-8 border-2 border-emerald-500/30">
-              <p className="text-xl md:text-3xl mb-4 font-bold">
+            <div className="bg-slate-800/50 backdrop-blur-lg rounded-2xl p-6 md:p-8 border border-slate-700 shadow-lg">
+              <p className="text-xl md:text-2xl mb-4 font-semibold text-white">
                 당신이 미루는 동안,
               </p>
-              <p className="text-lg md:text-2xl mb-2">
-                크몽에서 누군가는 <span className="text-amber-300">이 순간에도</span>
+              <p className="text-base md:text-xl mb-2 text-white/80">
+                크몽에서 누군가는 <span className="text-amber-400 font-semibold">이 순간에도</span>
               </p>
-              <p className="text-2xl md:text-5xl font-black text-amber-300 mb-6">
+              <p className="text-2xl md:text-4xl font-bold text-amber-400 mb-6">
                 전자책으로 월 300만원 벌고 있습니다
               </p>
 
               <Separator className="my-6 bg-white/20" />
 
               <div className="grid md:grid-cols-2 gap-6 text-left">
-                <div className="bg-slate-800/50 p-6 rounded-lg border border-slate-600/30">
-                  <p className="text-lg md:text-xl font-bold mb-2 text-slate-300">
+                <div className="bg-slate-900/50 p-6 rounded-xl border border-white/20">
+                  <p className="text-base md:text-lg font-semibold mb-2 text-white/90">
                     ❌ 지금 시작 안 하면
                   </p>
-                  <p className="text-sm md:text-lg">
+                  <p className="text-sm md:text-base text-white/70">
                     • 1년 후에도 똑같은 자리
                     <br />
                     • 1만원도 못 버는 인생
@@ -333,11 +329,11 @@ export default function LandingPage() {
                   </p>
                 </div>
 
-                <div className="bg-emerald-900/50 p-6 rounded-lg border-2 border-emerald-500">
-                  <p className="text-lg md:text-xl font-bold mb-2 text-emerald-300">
+                <div className="bg-slate-700/30 p-6 rounded-xl border-2 border-amber-400/50">
+                  <p className="text-base md:text-lg font-semibold mb-2 text-amber-400">
                     ✅ 지금 시작하면
                   </p>
-                  <p className="text-sm md:text-lg">
+                  <p className="text-sm md:text-base text-white">
                     • 10분 후 작가 됨
                     <br />
                     • 9,900원으로 전자책 사업 시작
@@ -351,19 +347,19 @@ export default function LandingPage() {
 
           {/* 실시간 손실 카운터 */}
           <div className="max-w-2xl mx-auto">
-            <Card className="bg-slate-950 border-2 border-emerald-500/50 p-6 md:p-8 text-center text-white">
+            <Card className="bg-slate-950 border-2 border-slate-500/50 p-6 md:p-8 text-center text-white">
               <h3 className="text-xl md:text-2xl font-bold mb-4 text-amber-400">
                 ⏰ 당신이 이 페이지를 보는 동안 놓친 기회
               </h3>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <div className="text-3xl md:text-4xl font-bold text-emerald-400 mb-2">
+                  <div className="text-3xl md:text-4xl font-bold text-slate-400 mb-2">
                     <CountUp end={127} duration={3} />만원
                   </div>
                   <div className="text-xs md:text-sm">크몽 거래액 (실시간)</div>
                 </div>
                 <div>
-                  <div className="text-3xl md:text-4xl font-bold text-emerald-400 mb-2">
+                  <div className="text-3xl md:text-4xl font-bold text-slate-400 mb-2">
                     <CountUp end={23} duration={2} />명
                   </div>
                   <div className="text-xs md:text-sm">방금 전자책 완성 (5분 전)</div>
@@ -378,7 +374,7 @@ export default function LandingPage() {
       </section>
 
       {/* Social Proof Section - Before/After 대비 */}
-      <section className="py-20 bg-white">
+      <section className="py-24 bg-slate-900">
         <div className="container mx-auto px-4">
           <motion.div
             initial={{ opacity: 0 }}
@@ -386,12 +382,12 @@ export default function LandingPage() {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl md:text-6xl font-black mb-4">
-              작가는 <span className="text-emerald-600">특별한 사람</span>만
+            <h2 className="text-3xl md:text-5xl font-bold mb-4 text-white">
+              작가는 <span className="text-amber-400">특별한 사람</span>만
               <br />
               되는 줄 알았습니다
             </h2>
-            <p className="text-lg md:text-xl text-gray-600">
+            <p className="text-lg md:text-xl text-white/80">
               하지만 이미 2,847명의 평범한 사람들이 증명했습니다
             </p>
           </motion.div>
@@ -400,61 +396,61 @@ export default function LandingPage() {
           <div className="grid md:grid-cols-2 gap-8 mb-16 max-w-5xl mx-auto">
             <Card className="p-6 md:p-8 bg-gray-100 border-2 border-gray-300">
               <div className="text-center mb-6">
-                <Badge className="bg-red-500 text-white px-4 py-2 text-base md:text-lg font-bold">
+                <Badge className="bg-slate-500 text-white px-4 py-2 text-base md:text-lg font-bold">
                   ❌ 예전 방식
                 </Badge>
               </div>
               <ul className="space-y-4">
                 <li className="flex items-start gap-3 text-base md:text-lg">
-                  <X className="w-6 h-6 text-red-500 flex-shrink-0 mt-1" />
+                  <X className="w-6 h-6 text-amber-500 flex-shrink-0 mt-1" />
                   <div>
                     <div className="font-bold">6개월 집필</div>
-                    <div className="text-xs md:text-sm text-gray-600">밤낮으로 써도 끝이 안 보임</div>
+                    <div className="text-xs md:text-sm text-white/600">밤낮으로 써도 끝이 안 보임</div>
                   </div>
                 </li>
                 <li className="flex items-start gap-3 text-base md:text-lg">
-                  <X className="w-6 h-6 text-red-500 flex-shrink-0 mt-1" />
+                  <X className="w-6 h-6 text-amber-500 flex-shrink-0 mt-1" />
                   <div>
                     <div className="font-bold">출판사 계약 필요</div>
-                    <div className="text-xs md:text-sm text-gray-600">계약 따내기가 하늘의 별따기</div>
+                    <div className="text-xs md:text-sm text-white/600">계약 따내기가 하늘의 별따기</div>
                   </div>
                 </li>
                 <li className="flex items-start gap-3 text-base md:text-lg">
-                  <X className="w-6 h-6 text-red-500 flex-shrink-0 mt-1" />
+                  <X className="w-6 h-6 text-amber-500 flex-shrink-0 mt-1" />
                   <div>
                     <div className="font-bold">수백만원 투자</div>
-                    <div className="text-xs md:text-sm text-gray-600">편집, 디자인, 마케팅 비용</div>
+                    <div className="text-xs md:text-sm text-white/600">편집, 디자인, 마케팅 비용</div>
                   </div>
                 </li>
               </ul>
             </Card>
 
-            <Card className="p-6 md:p-8 bg-gradient-to-br from-emerald-50 to-teal-50 border-2 border-emerald-500 shadow-xl transform md:scale-105">
+            <Card className="p-6 md:p-8 bg-gradient-to-br from-slate-50 to-teal-50 border-2 border-slate-500 shadow-xl transform md:scale-105">
               <div className="text-center mb-6">
-                <Badge className="bg-emerald-600 text-white px-4 py-2 text-base md:text-lg font-bold">
+                <Badge className="bg-slate-800 text-white px-4 py-2 text-base md:text-lg font-bold">
                   ✨ AI Book Writer
                 </Badge>
               </div>
               <ul className="space-y-4">
                 <li className="flex items-start gap-3 text-base md:text-lg">
-                  <CheckCircle className="w-6 h-6 text-emerald-600 flex-shrink-0 mt-1" />
+                  <CheckCircle className="w-6 h-6 text-slate-700 flex-shrink-0 mt-1" />
                   <div>
-                    <div className="font-bold text-emerald-600">10분 AI 작성</div>
-                    <div className="text-xs md:text-sm text-gray-600">커피 한 잔 마실 시간이면 끝</div>
+                    <div className="font-bold text-slate-700">10분 AI 작성</div>
+                    <div className="text-xs md:text-sm text-white/600">커피 한 잔 마실 시간이면 끝</div>
                   </div>
                 </li>
                 <li className="flex items-start gap-3 text-base md:text-lg">
-                  <CheckCircle className="w-6 h-6 text-emerald-600 flex-shrink-0 mt-1" />
+                  <CheckCircle className="w-6 h-6 text-slate-700 flex-shrink-0 mt-1" />
                   <div>
-                    <div className="font-bold text-emerald-600">크몽 즉시 판매</div>
-                    <div className="text-xs md:text-sm text-gray-600">완성하자마자 바로 업로드, 바로 판매</div>
+                    <div className="font-bold text-slate-700">크몽 즉시 판매</div>
+                    <div className="text-xs md:text-sm text-white/600">완성하자마자 바로 업로드, 바로 판매</div>
                   </div>
                 </li>
                 <li className="flex items-start gap-3 text-base md:text-lg">
-                  <CheckCircle className="w-6 h-6 text-emerald-600 flex-shrink-0 mt-1" />
+                  <CheckCircle className="w-6 h-6 text-slate-700 flex-shrink-0 mt-1" />
                   <div>
-                    <div className="font-bold text-emerald-600">9,900원/권</div>
-                    <div className="text-xs md:text-sm text-gray-600">10권 묶음 69,000원 (30% 할인)</div>
+                    <div className="font-bold text-slate-700">9,900원/권</div>
+                    <div className="text-xs md:text-sm text-white/600">10권 묶음 69,000원 (30% 할인)</div>
                   </div>
                 </li>
               </ul>
@@ -462,28 +458,28 @@ export default function LandingPage() {
           </div>
 
           {/* 통계 임팩트 */}
-          <div className="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-2xl p-8 md:p-12 text-white text-center">
+          <div className="bg-slate-800 rounded-2xl p-8 md:p-12 text-white text-center border border-amber-400/30">
             <h3 className="text-2xl md:text-3xl font-bold mb-8">
-              이미 <span className="text-amber-300">2,847명</span>이 10분 만에 작가가 되었습니다
+              이미 <span className="text-amber-400">2,847명</span>이 10분 만에 작가가 되었습니다
             </h3>
             <p className="text-xl md:text-2xl mb-2">
-              다음 차례는 <span className="text-amber-300 font-bold text-2xl md:text-3xl">당신</span>입니다
+              다음 차례는 <span className="text-amber-400 font-bold text-2xl md:text-3xl">당신</span>입니다
             </p>
           </div>
         </div>
       </section>
 
       {/* Comparison Story Section - 김과장 vs 이대리 */}
-      <section className="py-20 bg-gradient-to-b from-gray-50 to-gray-100">
+      <section className="py-24 bg-gradient-to-b from-gray-50 to-gray-100">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl md:text-6xl font-black text-center mb-16">
-            두 사람의 <span className="text-emerald-600">1년 후</span>
+          <h2 className="text-3xl md:text-5xl font-bold text-center mb-16">
+            두 사람의 <span className="text-slate-700">1년 후</span>
           </h2>
 
           <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto mb-12">
             {/* 김과장 스토리 - 실패 */}
             <Card className="p-6 md:p-8 bg-white border-2 border-gray-300 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-red-100 rounded-full -mr-16 -mt-16" />
+              <div className="absolute top-0 right-0 w-32 h-32 bg-slate-100 rounded-full -mr-16 -mt-16" />
 
               <div className="relative z-10">
                 <div className="flex items-center gap-4 mb-6">
@@ -492,29 +488,29 @@ export default function LandingPage() {
                   </div>
                   <div>
                     <h3 className="text-xl md:text-2xl font-bold">김과장 (42세)</h3>
-                    <p className="text-sm md:text-base text-gray-600">회사원 • 연봉 5,000만원</p>
+                    <p className="text-sm md:text-base text-white/600">회사원 • 연봉 5,000만원</p>
                   </div>
                 </div>
 
                 <div className="space-y-4 mb-6">
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <p className="text-xs md:text-sm text-gray-500 mb-1">2024년 1월</p>
+                  <div className="bg-slate-900 p-4 rounded-lg">
+                    <p className="text-xs md:text-sm text-white/500 mb-1">2024년 1월</p>
                     <p className="text-sm md:text-base font-medium">"전자책 쓰자! 부수입 만들자!"</p>
                   </div>
 
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <p className="text-xs md:text-sm text-gray-500 mb-1">2024년 3월</p>
+                  <div className="bg-slate-900 p-4 rounded-lg">
+                    <p className="text-xs md:text-sm text-white/500 mb-1">2024년 3월</p>
                     <p className="text-sm md:text-base font-medium">퇴근 후 2시간씩 집필... 너무 힘들다</p>
                   </div>
 
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <p className="text-xs md:text-sm text-gray-500 mb-1">2024년 6월</p>
+                  <div className="bg-slate-900 p-4 rounded-lg">
+                    <p className="text-xs md:text-sm text-white/500 mb-1">2024년 6월</p>
                     <p className="text-sm md:text-base font-medium">3챕터 쓰고 포기... "나중에 다시"</p>
                   </div>
 
-                  <div className="bg-red-50 p-4 rounded-lg border-2 border-red-300">
-                    <p className="text-xs md:text-sm text-red-500 mb-1 font-bold">2025년 1월 (1년 후)</p>
-                    <p className="text-sm md:text-base font-bold text-red-600">
+                  <div className="bg-slate-50 p-4 rounded-lg border-2 border-amber-300">
+                    <p className="text-xs md:text-sm text-amber-500 mb-1 font-bold">2025년 1월 (1년 후)</p>
+                    <p className="text-sm md:text-base font-bold text-amber-600">
                       💔 결과: 전자책 0권 • 추가 수입 0원
                       <br />
                       여전히 "언젠가는..." 혼잣말
@@ -523,21 +519,21 @@ export default function LandingPage() {
                 </div>
 
                 <div className="text-center p-4 bg-gray-100 rounded-lg">
-                  <p className="text-base md:text-lg font-bold text-gray-700">
-                    투자한 시간: <span className="text-red-600">120시간</span>
+                  <p className="text-base md:text-lg font-bold text-white/700">
+                    투자한 시간: <span className="text-amber-600">120시간</span>
                     <br />
-                    벌어들인 돈: <span className="text-red-600">0원</span>
+                    벌어들인 돈: <span className="text-amber-600">0원</span>
                   </p>
                 </div>
               </div>
             </Card>
 
             {/* 이대리 스토리 - 성공 */}
-            <Card className="p-6 md:p-8 bg-gradient-to-br from-emerald-50 to-teal-50 border-4 border-emerald-500 relative overflow-hidden shadow-2xl transform md:scale-105">
+            <Card className="p-6 md:p-8 bg-gradient-to-br from-slate-50 to-teal-50 border-4 border-slate-500 relative overflow-hidden shadow-2xl transform md:scale-105">
               <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-100 rounded-full -mr-16 -mt-16" />
 
               <div className="absolute top-4 right-4 z-20">
-                <Badge className="bg-amber-400 text-emerald-950 font-bold px-4 py-2">
+                <Badge className="bg-amber-400 text-slate-950 font-bold px-4 py-2">
                   ✨ 성공 케이스
                 </Badge>
               </div>
@@ -549,29 +545,29 @@ export default function LandingPage() {
                   </div>
                   <div>
                     <h3 className="text-xl md:text-2xl font-bold">이대리 (38세)</h3>
-                    <p className="text-sm md:text-base text-gray-600">회사원 • 연봉 4,500만원</p>
+                    <p className="text-sm md:text-base text-white/600">회사원 • 연봉 4,500만원</p>
                   </div>
                 </div>
 
                 <div className="space-y-4 mb-6">
                   <div className="bg-white p-4 rounded-lg border border-purple-200">
-                    <p className="text-xs md:text-sm text-emerald-600 mb-1 font-bold">2024년 1월</p>
+                    <p className="text-xs md:text-sm text-slate-700 mb-1 font-bold">2024년 1월</p>
                     <p className="text-sm md:text-base font-medium">"AI Book Writer 써보자!"</p>
                   </div>
 
-                  <div className="bg-white p-4 rounded-lg border border-emerald-200">
-                    <p className="text-xs md:text-sm text-emerald-600 mb-1 font-bold">2024년 1월 (점심시간)</p>
+                  <div className="bg-white p-4 rounded-lg border border-slate-200">
+                    <p className="text-xs md:text-sm text-slate-700 mb-1 font-bold">2024년 1월 (점심시간)</p>
                     <p className="text-sm md:text-base font-medium">10분 만에 전자책 1권 완성, 크몽 업로드</p>
                   </div>
 
-                  <div className="bg-white p-4 rounded-lg border border-emerald-200">
-                    <p className="text-xs md:text-sm text-emerald-600 mb-1 font-bold">2024년 4월 (3개월 후)</p>
+                  <div className="bg-white p-4 rounded-lg border border-slate-200">
+                    <p className="text-xs md:text-sm text-slate-700 mb-1 font-bold">2024년 4월 (3개월 후)</p>
                     <p className="text-sm md:text-base font-medium">월 평균 50만원 부수입 발생 💰</p>
                   </div>
 
-                  <div className="bg-green-50 p-4 rounded-lg border-2 border-green-500">
-                    <p className="text-xs md:text-sm text-green-600 mb-1 font-bold">2025년 1월 (1년 후)</p>
-                    <p className="text-sm md:text-base font-bold text-green-700">
+                  <div className="bg-amber-50 p-4 rounded-lg border-2 border-green-500">
+                    <p className="text-xs md:text-sm text-amber-600 mb-1 font-bold">2025년 1월 (1년 후)</p>
+                    <p className="text-sm md:text-base font-bold text-amber-700">
                       ✅ 결과: 전자책 12권 • 월 수입 500만원
                       <br />
                       "다음 책은 뭐 쓸까?" 고민 중
@@ -581,9 +577,9 @@ export default function LandingPage() {
 
                 <div className="text-center p-4 bg-gradient-to-r from-emerald-100 to-teal-100 rounded-lg">
                   <p className="text-base md:text-lg font-bold">
-                    투자한 시간: <span className="text-emerald-600">2시간</span>
+                    투자한 시간: <span className="text-slate-700">2시간</span>
                     <br />
-                    벌어들인 돈: <span className="text-emerald-600">연 6,000만원</span>
+                    벌어들인 돈: <span className="text-slate-700">연 6,000만원</span>
                   </p>
                 </div>
               </div>
@@ -594,7 +590,7 @@ export default function LandingPage() {
           <div className="max-w-3xl mx-auto text-center">
             <Card className="p-8 md:p-10 bg-black text-white">
               <h3 className="text-2xl md:text-3xl font-bold mb-6">
-                둘의 차이는 <span className="text-red-400">'재능'</span>이 아니었습니다
+                둘의 차이는 <span className="text-amber-400">'재능'</span>이 아니었습니다
               </h3>
               <p className="text-xl md:text-2xl mb-6">
                 <span className="text-amber-400 font-bold">'올바른 도구'</span>를 아는지
@@ -602,13 +598,13 @@ export default function LandingPage() {
                 모르는지의 차이였죠
               </p>
               <Separator className="my-6 bg-white/20" />
-              <p className="text-2xl md:text-3xl font-black text-amber-400 mb-8">
+              <p className="text-2xl md:text-3xl font-bold text-amber-400 mb-8">
                 당신은 어느 쪽인가요?
               </p>
               <Link href="/create">
                 <Button
                   size="lg"
-                  className="bg-amber-400 hover:bg-amber-500 text-emerald-950 font-bold text-lg md:text-xl px-8 md:px-12 py-4 md:py-6"
+                  className="bg-amber-400 hover:bg-amber-500 text-slate-950 font-bold text-lg md:text-xl px-8 md:px-12 py-4 md:py-6"
                 >
                   이대리처럼 성공하기 →
                 </Button>
@@ -619,47 +615,47 @@ export default function LandingPage() {
       </section>
 
       {/* Future Timeline Section - 3개월 후 미래 */}
-      <section className="py-20 bg-gradient-to-b from-black to-purple-900 text-white">
+      <section className="py-24 bg-slate-900">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl md:text-6xl font-black text-center mb-4">
+          <h2 className="text-3xl md:text-5xl font-bold text-center mb-4">
             🔮 3개월 후 당신의
             <br />
             <span className="text-amber-300">두 가지 미래</span>
           </h2>
-          <p className="text-lg md:text-xl text-center text-gray-300 mb-16">
+          <p className="text-lg md:text-xl text-center text-white/300 mb-16">
             어느 쪽을 선택하시겠습니까?
           </p>
 
           <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto mb-12">
             {/* 미래 A - 실패 */}
-            <Card className="p-6 md:p-8 bg-gray-800 border-2 border-red-500 text-white">
-              <Badge className="bg-red-500 text-white mb-4">미래 A</Badge>
+            <Card className="p-6 md:p-8 bg-gray-800 border-2 border-amber-500 text-white">
+              <Badge className="bg-slate-500 text-white mb-4">미래 A</Badge>
 
-              <h3 className="text-2xl md:text-3xl font-bold mb-6 text-red-400">
+              <h3 className="text-2xl md:text-3xl font-bold mb-6 text-amber-400">
                 "아... 그때 그거 해볼걸"
               </h3>
 
               <div className="space-y-4 mb-6">
                 <div className="flex items-start gap-3">
-                  <X className="w-6 h-6 text-red-400 flex-shrink-0" />
+                  <X className="w-6 h-6 text-amber-400 flex-shrink-0" />
                   <p>통장 잔고 변화 없음</p>
                 </div>
                 <div className="flex items-start gap-3">
-                  <X className="w-6 h-6 text-red-400 flex-shrink-0" />
+                  <X className="w-6 h-6 text-amber-400 flex-shrink-0" />
                   <p>여전히 크몽에서 전자책 구경만</p>
                 </div>
                 <div className="flex items-start gap-3">
-                  <X className="w-6 h-6 text-red-400 flex-shrink-0" />
+                  <X className="w-6 h-6 text-amber-400 flex-shrink-0" />
                   <p>"언젠가는..." 똑같은 말 반복</p>
                 </div>
                 <div className="flex items-start gap-3">
-                  <X className="w-6 h-6 text-red-400 flex-shrink-0" />
+                  <X className="w-6 h-6 text-amber-400 flex-shrink-0" />
                   <p>다른 사람 성공 스토리 보며 부러워만</p>
                 </div>
               </div>
 
-              <div className="p-4 bg-red-900/50 rounded-lg text-center">
-                <p className="text-xl md:text-2xl font-bold text-red-300">
+              <div className="p-4 bg-slate-900/50 rounded-lg text-center">
+                <p className="text-xl md:text-2xl font-bold text-amber-300">
                   추가 수입: 0원
                 </p>
               </div>
@@ -667,7 +663,7 @@ export default function LandingPage() {
 
             {/* 미래 B - 성공 */}
             <Card className="p-6 md:p-8 bg-gradient-to-br from-emerald-600 to-teal-600 border-4 border-amber-400 shadow-2xl transform md:scale-105 text-white">
-              <Badge className="bg-amber-400 text-emerald-950 mb-4 font-bold">미래 B ⭐</Badge>
+              <Badge className="bg-amber-400 text-slate-950 mb-4 font-bold">미래 B ⭐</Badge>
 
               <h3 className="text-2xl md:text-3xl font-bold mb-6 text-amber-300">
                 "오 진짜 되네?"
@@ -692,7 +688,7 @@ export default function LandingPage() {
                 </div>
               </div>
 
-              <div className="p-4 bg-green-500 rounded-lg text-center text-black">
+              <div className="p-4 bg-amber-500 rounded-lg text-center text-black">
                 <p className="text-xl md:text-2xl font-bold">
                   추가 수입: 월 80만원+
                 </p>
@@ -703,11 +699,11 @@ export default function LandingPage() {
 
           {/* 분기점 강조 */}
           <div className="max-w-2xl mx-auto">
-            <Card className="p-8 md:p-10 bg-amber-400 text-emerald-950 text-center">
+            <Card className="p-8 md:p-10 bg-amber-400 text-slate-950 text-center">
               <h3 className="text-2xl md:text-3xl font-bold mb-4">
                 두 미래의 분기점
               </h3>
-              <div className="flex flex-wrap items-center justify-center gap-4 mb-6 text-xl md:text-3xl font-black">
+              <div className="flex flex-wrap items-center justify-center gap-4 mb-6 text-xl md:text-3xl font-bold">
                 <span>오늘</span>
                 <span>•</span>
                 <span>9,900원</span>
@@ -733,27 +729,27 @@ export default function LandingPage() {
       </section>
 
       {/* Pricing Section - 자판기 모델 */}
-      <section className="py-20 bg-white">
+      <section className="py-24 bg-slate-900">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
               whileInView={{ scale: 1, opacity: 1 }}
               viewport={{ once: true }}
-              className="inline-block bg-red-500 text-white px-6 md:px-8 py-3 md:py-4 rounded-full mb-6"
+              className="inline-block bg-slate-500 text-white px-6 md:px-8 py-3 md:py-4 rounded-full mb-6"
             >
               <p className="text-lg md:text-2xl font-bold">
                 🎰 자판기처럼 간편하게! 필요한 만큼만 구매하세요
               </p>
             </motion.div>
 
-            <h2 className="text-3xl md:text-6xl font-black mb-4">
+            <h2 className="text-3xl md:text-5xl font-bold mb-4">
               💸 150페이지 완성본
               <br />
-              <span className="text-emerald-600">단돈 9,900원</span>
+              <span className="text-slate-700">단돈 9,900원</span>
             </h2>
-            <p className="text-xl md:text-2xl text-gray-600 mb-6">
-              외주 200만원 vs AI 9,900원 = <span className="text-red-600 font-bold">20,202% 절약</span>
+            <p className="text-xl md:text-2xl text-white/600 mb-6">
+              외주 200만원 vs AI 9,900원 = <span className="text-amber-600 font-bold">20,202% 절약</span>
             </p>
           </div>
 
@@ -768,52 +764,52 @@ export default function LandingPage() {
               <Card className="p-8 md:p-10 bg-gradient-to-br from-white to-purple-50 border-2 border-purple-300 h-full hover:shadow-2xl transition-shadow">
                 <div className="text-center mb-6">
                   <div className="text-5xl mb-4">📖</div>
-                  <h3 className="text-2xl md:text-3xl font-black mb-2">1권 패키지</h3>
-                  <p className="text-gray-600">먼저 써보고 싶으신 분</p>
+                  <h3 className="text-2xl md:text-3xl font-bold mb-2">1권 패키지</h3>
+                  <p className="text-white/600">먼저 써보고 싶으신 분</p>
                 </div>
 
                 <div className="text-center mb-6">
-                  <div className="text-5xl md:text-6xl font-black text-emerald-600 mb-2">
+                  <div className="text-4xl md:text-5xl font-bold text-slate-700 mb-2">
                     ₩9,900
                   </div>
-                  <p className="text-sm text-gray-500">전자책 1권 (150페이지)</p>
+                  <p className="text-sm text-white/500">전자책 1권 (150페이지)</p>
                 </div>
 
                 <div className="bg-purple-50 rounded-lg p-4 mb-6">
                   <div className="flex items-center justify-between text-sm mb-2">
-                    <span className="text-gray-600">API 원가 (Claude 4.5)</span>
+                    <span className="text-white/600">API 원가 (Claude 4.5)</span>
                     <span className="font-bold">₩1,450</span>
                   </div>
                   <div className="flex items-center justify-between text-sm mb-2">
-                    <span className="text-gray-600">당신의 비용</span>
-                    <span className="font-bold text-emerald-600">₩9,900</span>
+                    <span className="text-white/600">당신의 비용</span>
+                    <span className="font-bold text-slate-700">₩9,900</span>
                   </div>
                   <Separator className="my-2" />
                   <div className="flex items-center justify-between">
                     <span className="font-bold">순이익 마진</span>
-                    <span className="font-black text-green-600 text-lg">583%</span>
+                    <span className="font-bold text-amber-600 text-lg">583%</span>
                   </div>
                 </div>
 
                 <ul className="space-y-3 mb-6">
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+                    <CheckCircle className="w-5 h-5 text-slate-700 flex-shrink-0" />
                     <span className="text-sm">150페이지 완성본</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+                    <CheckCircle className="w-5 h-5 text-slate-700 flex-shrink-0" />
                     <span className="text-sm">15개 챕터 자동 생성</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+                    <CheckCircle className="w-5 h-5 text-slate-700 flex-shrink-0" />
                     <span className="text-sm">PDF/EPUB 내보내기</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+                    <CheckCircle className="w-5 h-5 text-slate-700 flex-shrink-0" />
                     <span className="text-sm">10분 만에 완성</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+                    <CheckCircle className="w-5 h-5 text-slate-700 flex-shrink-0" />
                     <span className="text-sm">무제한 수정 가능</span>
                   </li>
                 </ul>
@@ -821,13 +817,13 @@ export default function LandingPage() {
                 <Link href="/create">
                   <Button
                     size="lg"
-                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-lg py-6"
+                    className="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold text-lg py-6"
                   >
                     1권 만들기 →
                   </Button>
                 </Link>
 
-                <p className="text-center text-xs text-gray-500 mt-4">
+                <p className="text-center text-xs text-white/500 mt-4">
                   크몽 판매가 평균 29,000원 = 즉시 19,100원 순이익
                 </p>
               </Card>
@@ -840,25 +836,25 @@ export default function LandingPage() {
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
             >
-              <Card className="p-8 md:p-10 bg-gradient-to-br from-emerald-600 to-teal-600 text-white border-4 border-amber-400 h-full relative overflow-hidden shadow-2xl transform md:scale-105">
+              <Card className="p-8 md:p-10 bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 text-white border-4 border-amber-400 h-full relative overflow-hidden shadow-2xl transform md:scale-105">
                 <div className="absolute top-4 right-4">
-                  <Badge className="bg-amber-400 text-emerald-950 font-bold px-4 py-2 text-base">
+                  <Badge className="bg-amber-400 text-slate-950 font-bold px-4 py-2 text-base">
                     ⭐ 30% 할인
                   </Badge>
                 </div>
 
                 <div className="text-center mb-6">
                   <div className="text-5xl mb-4">📚</div>
-                  <h3 className="text-2xl md:text-3xl font-black mb-2">10권 패키지</h3>
-                  <p className="text-emerald-100">본격적으로 사업하실 분</p>
+                  <h3 className="text-2xl md:text-3xl font-bold mb-2">10권 패키지</h3>
+                  <p className="text-slate-100">본격적으로 사업하실 분</p>
                 </div>
 
                 <div className="text-center mb-6">
                   <div className="flex items-center justify-center gap-3 mb-2">
                     <span className="text-2xl md:text-3xl line-through opacity-70">₩99,000</span>
-                    <span className="text-5xl md:text-6xl font-black text-amber-300">₩69,000</span>
+                    <span className="text-4xl md:text-5xl font-bold text-amber-300">₩69,000</span>
                   </div>
-                  <p className="text-sm text-emerald-100">전자책 10권 (1,500페이지)</p>
+                  <p className="text-sm text-slate-100">전자책 10권 (1,500페이지)</p>
                   <p className="text-lg font-bold text-amber-300 mt-2">권당 ₩6,900</p>
                 </div>
 
@@ -874,7 +870,7 @@ export default function LandingPage() {
                   <Separator className="my-2 bg-white/20" />
                   <div className="flex items-center justify-between">
                     <span className="font-bold">순이익 마진</span>
-                    <span className="font-black text-amber-300 text-lg">376%</span>
+                    <span className="font-bold text-amber-300 text-lg">376%</span>
                   </div>
                 </div>
 
@@ -904,7 +900,7 @@ export default function LandingPage() {
                 <Link href="/create">
                   <Button
                     size="lg"
-                    className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-black text-lg py-6"
+                    className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-bold text-lg py-6"
                   >
                     10권 패키지 구매하기 →
                   </Button>
@@ -924,31 +920,31 @@ export default function LandingPage() {
             </h3>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <Card className="p-4 md:p-6 text-center bg-gray-50">
+              <Card className="p-4 md:p-6 text-center bg-slate-900">
                 <div className="text-2xl md:text-4xl mb-2">📝</div>
                 <div className="text-sm md:text-base font-bold mb-2">외주 작가</div>
-                <div className="text-xl md:text-3xl font-black text-red-600 mb-1">200만원</div>
-                <div className="text-xs md:text-sm text-gray-600">1권당</div>
+                <div className="text-xl md:text-3xl font-bold text-amber-600 mb-1">200만원</div>
+                <div className="text-xs md:text-sm text-white/600">1권당</div>
               </Card>
 
-              <Card className="p-4 md:p-6 text-center bg-gray-50">
+              <Card className="p-4 md:p-6 text-center bg-slate-900">
                 <div className="text-2xl md:text-4xl mb-2">👨‍💻</div>
                 <div className="text-sm md:text-base font-bold mb-2">프리랜서</div>
-                <div className="text-xl md:text-3xl font-black text-red-600 mb-1">100만원</div>
-                <div className="text-xs md:text-sm text-gray-600">1권당</div>
+                <div className="text-xl md:text-3xl font-bold text-amber-600 mb-1">100만원</div>
+                <div className="text-xs md:text-sm text-white/600">1권당</div>
               </Card>
 
-              <Card className="p-4 md:p-6 text-center bg-gray-50">
+              <Card className="p-4 md:p-6 text-center bg-slate-900">
                 <div className="text-2xl md:text-4xl mb-2">🤖</div>
                 <div className="text-sm md:text-base font-bold mb-2">직접 작성</div>
-                <div className="text-xl md:text-3xl font-black text-orange-600 mb-1">3개월</div>
-                <div className="text-xs md:text-sm text-gray-600">시간 + 노력</div>
+                <div className="text-xl md:text-3xl font-bold text-orange-600 mb-1">3개월</div>
+                <div className="text-xs md:text-sm text-white/600">시간 + 노력</div>
               </Card>
 
               <Card className="p-4 md:p-6 text-center bg-gradient-to-br from-purple-600 to-pink-600 text-white border-4 border-yellow-400 transform md:scale-110">
                 <div className="text-2xl md:text-4xl mb-2">✨</div>
                 <div className="text-sm md:text-base font-bold mb-2">AI Book Writer</div>
-                <div className="text-xl md:text-3xl font-black text-amber-300 mb-1">₩9,900</div>
+                <div className="text-xl md:text-3xl font-bold text-amber-300 mb-1">₩9,900</div>
                 <div className="text-xs md:text-sm">1권 / 10분</div>
               </Card>
             </div>
@@ -987,7 +983,7 @@ export default function LandingPage() {
                     <Separator className="my-2 bg-white/20" />
                     <div className="flex justify-between text-lg">
                       <span className="font-bold">순수익:</span>
-                      <span className="font-black text-amber-300">₩19,100</span>
+                      <span className="font-bold text-amber-300">₩19,100</span>
                     </div>
                   </div>
                 </div>
@@ -1007,7 +1003,7 @@ export default function LandingPage() {
                     <Separator className="my-2 bg-white/20" />
                     <div className="flex justify-between text-lg">
                       <span className="font-bold">순수익:</span>
-                      <span className="font-black text-amber-300">₩221,000</span>
+                      <span className="font-bold text-amber-300">₩221,000</span>
                     </div>
                   </div>
                 </div>
@@ -1029,7 +1025,7 @@ export default function LandingPage() {
               <p className="text-xl md:text-2xl mb-4">
                 만족하지 못하시면
                 <br />
-                <span className="font-black text-amber-300">100% 전액 환불</span>
+                <span className="font-bold text-amber-300">100% 전액 환불</span>
               </p>
               <Separator className="my-6 bg-white/30" />
               <p className="text-lg md:text-xl">
@@ -1043,14 +1039,14 @@ export default function LandingPage() {
       </section>
 
       {/* Final CTA Section - 도발적 질문 */}
-      <section className="py-20 bg-gradient-to-br from-black via-emerald-950 to-slate-950 text-white relative overflow-hidden">
+      <section className="py-32 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 relative overflow-hidden">
         <div className="container mx-auto px-4 text-center relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-4xl md:text-7xl font-black mb-12">
+            <h2 className="text-3xl md:text-5xl font-bold mb-12 text-white">
               🤔 솔직히 물어봅니다
             </h2>
 
@@ -1069,40 +1065,40 @@ export default function LandingPage() {
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.1 }}
                 >
-                  <Card className="p-4 md:p-6 bg-white/10 backdrop-blur-lg border border-white/20">
-                    <p className="text-lg md:text-2xl font-bold">{question}</p>
+                  <Card className="p-4 md:p-6 bg-slate-800/50 border border-slate-700 shadow-md">
+                    <p className="text-base md:text-xl font-semibold text-white">{question}</p>
                   </Card>
                 </motion.div>
               ))}
 
               <div className="my-12">
-                <p className="text-2xl md:text-3xl font-bold text-amber-300 mb-2">
+                <p className="text-xl md:text-2xl font-semibold text-amber-400 mb-2">
                   아니면...
                 </p>
               </div>
 
-              <Card className="p-6 md:p-8 bg-red-500/20 backdrop-blur-lg border-2 border-red-500">
-                <p className="text-xl md:text-2xl font-bold mb-4">
+              <Card className="p-6 md:p-8 bg-slate-900/30 border-2 border-amber-400 shadow-lg">
+                <p className="text-lg md:text-xl font-semibold mb-4 text-white">
                   Q. 그냥 구경만 하면서
                   <br />
-                  <span className="text-red-400">"나도 할 수 있을 텐데"</span>
+                  <span className="text-amber-400">"나도 할 수 있을 텐데"</span>
                   <br />
                   혼자 생각만 하실 건가요?
                 </p>
               </Card>
             </div>
 
-            <Separator className="max-w-md mx-auto my-12 bg-white/20" />
+            <Separator className="max-w-md mx-auto my-12 bg-slate-700" />
 
             {/* 최종 메시지 */}
             <div className="mb-12">
-              <p className="text-3xl md:text-5xl font-black mb-4">
+              <p className="text-3xl md:text-5xl font-bold mb-4">
                 성공하면 <span className="text-amber-300">월 1억 작가</span>
               </p>
-              <p className="text-3xl md:text-5xl font-black mb-8">
+              <p className="text-3xl md:text-5xl font-bold mb-8">
                 실패해도 <span className="text-amber-300">커피 두 잔 값</span>
               </p>
-              <p className="text-2xl md:text-4xl font-bold text-red-400">
+              <p className="text-2xl md:text-4xl font-bold text-amber-400">
                 이런 투자, 안 하면 바보 아닙니까?
               </p>
             </div>
@@ -1115,7 +1111,7 @@ export default function LandingPage() {
               <Link href="/create">
                 <Button
                   size="lg"
-                  className="bg-yellow-400 hover:bg-yellow-500 text-black font-black text-xl md:text-3xl px-12 md:px-20 py-8 md:py-12 rounded-full shadow-2xl"
+                  className="bg-yellow-400 hover:bg-yellow-500 text-black font-bold text-xl md:text-3xl px-12 md:px-20 py-8 md:py-12 rounded-full shadow-2xl"
                 >
                   <span className="flex flex-col items-center">
                     <span>🚀 지금 10분 만에 작가 되기</span>
@@ -1148,7 +1144,7 @@ export default function LandingPage() {
                 <p className="text-xl md:text-2xl mb-6 font-bold">
                   지금 시작하지 않으면,
                 </p>
-                <p className="text-3xl md:text-5xl font-black text-amber-300">
+                <p className="text-3xl md:text-5xl font-bold text-amber-300">
                   1년 후에도 똑같은 자리에
                   <br />
                   있을 겁니다
@@ -1164,10 +1160,10 @@ export default function LandingPage() {
         <div className="container mx-auto px-4 py-8">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center space-x-2 mb-4 md:mb-0">
-              <BookOpen className="w-5 h-5 text-emerald-400" />
+              <BookOpen className="w-5 h-5 text-slate-400" />
               <span className="font-semibold">AI Book Writer</span>
             </div>
-            <div className="flex items-center space-x-6 text-sm text-gray-400">
+            <div className="flex items-center space-x-6 text-sm text-white/400">
               <Link href="/terms" className="hover:text-white transition-colors">
                 이용약관
               </Link>
@@ -1179,7 +1175,7 @@ export default function LandingPage() {
               </Link>
             </div>
           </div>
-          <div className="mt-8 text-center text-sm text-gray-400">
+          <div className="mt-8 text-center text-sm text-white/400">
             © 2024 AI Book Writer. All rights reserved.
           </div>
         </div>
