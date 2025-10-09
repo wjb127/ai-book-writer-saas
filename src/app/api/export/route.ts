@@ -258,37 +258,19 @@ export async function POST(request: NextRequest) {
       return new NextResponse(Buffer.from(buffer), {
         headers: {
           'Content-Type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-          'Content-Disposition': `attachment; filename="${outline.title}.docx"`
+          'Content-Disposition': `attachment; filename="${encodeURIComponent(outline.title)}.docx"`
         }
       })
     }
 
     // EPUB 생성
     if (format === 'epub') {
-      const chapters = outline.chapters
-        .filter((chapter: any) => chapter.content)
-        .map((chapter: any) => ({
-          title: `Chapter ${chapter.number}: ${chapter.title}`,
-          data: chapter.content.replace(/[#*`]/g, '').replace(/\n/g, '<br/>')
-        }))
-
-      const epub = new Epub(
-        {
-          title: outline.title,
-          author: 'AI Book Writer',
-          content: chapters
-        },
-        undefined
+      // EPUB 형식은 현재 개발 중입니다
+      // 대신 DOCX를 사용해주세요
+      return NextResponse.json(
+        { error: 'EPUB 형식은 현재 준비 중입니다. PDF 또는 DOCX 형식을 사용해주세요.' },
+        { status: 501 }
       )
-
-      const epubBuffer = await epub.genEpub()
-
-      return new NextResponse(epubBuffer, {
-        headers: {
-          'Content-Type': 'application/epub+zip',
-          'Content-Disposition': `attachment; filename="${outline.title}.epub"`
-        }
-      })
     }
 
     return NextResponse.json(
