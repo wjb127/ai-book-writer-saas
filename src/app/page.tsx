@@ -154,24 +154,8 @@ export default function LandingPage() {
 
       {/* Hero Section - 10분 작가 충격 */}
       <section className="relative min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-slate-950 overflow-hidden flex items-center">
-        {/* 실시간 카운터 */}
-        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-50">
-          <div className="bg-amber-400 text-slate-900 px-6 py-2 rounded-full font-semibold shadow-lg text-sm md:text-base">
-            🔥 지금 이 순간 <span className="text-slate-950 font-bold">127만원</span> 거래 중
-          </div>
-        </div>
 
         <div className="container mx-auto px-4 py-24 text-center text-white relative z-10">
-          {/* 긴급 알림 배너 */}
-          <motion.div
-            initial={{ y: -50, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            className="mb-8"
-          >
-            <Badge className="bg-amber-400 text-slate-900 font-semibold px-6 py-2 text-sm md:text-base rounded-full shadow-xl">
-              ⚡ 마감 임박: 오늘 신청자 한정 75% 할인 (23명 남음)
-            </Badge>
-          </motion.div>
 
           {/* 메인 헤드라인 */}
           <motion.h1
