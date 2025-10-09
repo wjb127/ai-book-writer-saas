@@ -4,9 +4,9 @@ import { logger } from '@/lib/logger'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { bookId: string } }
+  { params }: { params: Promise<{ bookId: string }> }
 ) {
-  const { bookId } = params
+  const { bookId } = await params
   const url = new URL(request.url)
   const isSSE = url.searchParams.get('stream') !== 'false'
 
