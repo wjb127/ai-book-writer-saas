@@ -30,6 +30,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { BookGenerationProgress } from '@/components/BookGenerationProgress'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { toast } from 'sonner'
@@ -73,6 +74,7 @@ export default function EditPage() {
   const [editingChapterIndex, setEditingChapterIndex] = useState<number | null>(null)
   const [editingChapterTitle, setEditingChapterTitle] = useState<string>('')
   const [autoSaveTimeout, setAutoSaveTimeout] = useState<NodeJS.Timeout | null>(null)
+  const [parallelBookId, setParallelBookId] = useState<string | null>(null) // 병렬 생성용 bookId
 
   // localStorage에서 데이터 불러오기
   useEffect(() => {
@@ -208,10 +210,61 @@ export default function EditPage() {
   const handleGenerateAllChapters = async () => {
     if (!outline) return
 
-    for (let i = 0; i < outline.chapters.length; i++) {
-      if (!generatedChapters.has(i)) {
-        await handleGenerateChapter(i)
-      }
+    // 병렬 생성 시작
+    const bookId = crypto.randomUUID()
+    setParallelBookId(bookId)
+    setIsGenerating(true)
+
+    toast.info('책 전체 생성을 시작합니다 (약 1분 소요)')
+
+    try {
+      // 백그라운드에서 병렬 생성 (응답 기다리지 않음)
+      fetch('/api/generate-book', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          bookId,
+          bookTitle: outline.title,
+          chapters: outline.chapters,
+          settings
+        })
+      }).then(async (response) => {
+        if (!response.ok) {
+          throw new Error('책 생성 실패')
+        }
+
+        const result = await response.json()
+
+        // 완성된 챕터들을 outline에 반영
+        const updatedChapters = [...outline.chapters]
+        result.chapters.forEach((generatedChapter: any) => {
+          if (generatedChapter.status === 'completed') {
+            updatedChapters[generatedChapter.index].content = generatedChapter.content
+          }
+        })
+
+        setOutline({ ...outline, chapters: updatedChapters })
+
+        // 모든 챕터를 생성완료로 마크
+        const allIndices = new Set(outline.chapters.map((_, i) => i))
+        setGeneratedChapters(allIndices)
+
+        setIsGenerating(false)
+        setParallelBookId(null)
+
+        toast.success(`책 생성 완료! (${(result.totalTime / 1000).toFixed(1)}초 소요)`)
+      }).catch((error) => {
+        console.error('Generation error:', error)
+        setIsGenerating(false)
+        setParallelBookId(null)
+        toast.error('책 생성 중 오류가 발생했습니다')
+      })
+
+    } catch (error) {
+      console.error('Generation error:', error)
+      setIsGenerating(false)
+      setParallelBookId(null)
+      toast.error('책 생성 중 오류가 발생했습니다')
     }
   }
 
@@ -545,6 +598,29 @@ export default function EditPage() {
       </nav>
 
       <div className="container mx-auto px-4 py-8 max-w-7xl">
+        {/* 병렬 생성 진행률 표시 */}
+        {parallelBookId && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6"
+          >
+            <BookGenerationProgress
+              bookId={parallelBookId}
+              onComplete={(chapters) => {
+                console.log('생성 완료:', chapters)
+                // 이미 fetch then에서 처리하므로 여기서는 로그만
+              }}
+              onError={(error) => {
+                console.error('생성 실패:', error)
+                toast.error(error)
+                setIsGenerating(false)
+                setParallelBookId(null)
+              }}
+            />
+          </motion.div>
+        )}
+
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

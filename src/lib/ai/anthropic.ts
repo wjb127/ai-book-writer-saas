@@ -34,9 +34,13 @@ export async function generateWithClaude(prompt: string, model: string = DEFAULT
     })
 
     const anthropic = getAnthropicClient()
+
+    // 모델별 max_tokens 설정
+    const maxTokens = model === MODELS.PREMIUM ? 16000 : 8000
+
     const response = await anthropic.messages.create({
       model,
-      max_tokens: 8000,
+      max_tokens: maxTokens,
       temperature: 0.7,
       messages: [{ role: 'user', content: prompt }],
     })
@@ -83,12 +87,15 @@ export async function generateWithClaudeStream(
       hasSystemPrompt: !!systemPrompt
     })
 
+    // 모델별 max_tokens 설정
+    const maxTokens = model === MODELS.PREMIUM ? 16000 : 8000
+
     // Anthropic SDK의 .stream() 메서드 사용 (공식 방법)
     const anthropic = getAnthropicClient()
     const stream = anthropic.messages
       .stream({
         model,
-        max_tokens: 8000,
+        max_tokens: maxTokens,
         temperature: 0.7,
         ...(systemPrompt && { system: systemPrompt }),
         messages: [{ role: 'user', content: prompt }],
