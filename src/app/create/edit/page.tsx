@@ -75,6 +75,13 @@ export default function EditPage() {
   const [editingChapterTitle, setEditingChapterTitle] = useState<string>('')
   const [autoSaveTimeout, setAutoSaveTimeout] = useState<NodeJS.Timeout | null>(null)
   const [parallelBookId, setParallelBookId] = useState<string | null>(null) // 병렬 생성용 bookId
+  const [liveChapters, setLiveChapters] = useState<Array<{
+    index: number
+    title: string
+    status: 'pending' | 'generating' | 'completed' | 'error'
+    contentLength: number
+    preview?: string
+  }>>([]) // 실시간 진행 상황
 
   // localStorage에서 데이터 불러오기
   useEffect(() => {
@@ -607,8 +614,13 @@ export default function EditPage() {
           >
             <BookGenerationProgress
               bookId={parallelBookId}
+              onProgress={(chapters) => {
+                // 실시간 진행 상황 업데이트
+                setLiveChapters(chapters)
+              }}
               onComplete={(chapters) => {
                 console.log('생성 완료:', chapters)
+                setLiveChapters([]) // 완료 후 초기화
                 // 이미 fetch then에서 처리하므로 여기서는 로그만
               }}
               onError={(error) => {
@@ -616,6 +628,7 @@ export default function EditPage() {
                 toast.error(error)
                 setIsGenerating(false)
                 setParallelBookId(null)
+                setLiveChapters([]) // 에러 시 초기화
               }}
             />
           </motion.div>
@@ -1006,7 +1019,45 @@ export default function EditPage() {
                         </div>
                       )}
                       <ScrollArea className="h-[550px] w-full rounded-md border p-6">
-                        {outline?.chapters[selectedChapter].content ? (
+                        {/* 실시간 생성 중인 경우 live preview 표시 */}
+                        {liveChapters.length > 0 && !outline?.chapters[selectedChapter].content ? (
+                          <div className="space-y-6">
+                            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-4">
+                              <div className="flex items-center gap-2 text-blue-700 dark:text-blue-300">
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                                <span className="font-medium">실시간 생성 중...</span>
+                              </div>
+                              <p className="text-sm text-blue-600 dark:text-blue-400 mt-1">
+                                챕터가 생성되는 동안 미리보기가 자동으로 업데이트됩니다
+                              </p>
+                            </div>
+                            {liveChapters.map((chapter) => (
+                              <div key={chapter.index} className="border rounded-lg p-4 space-y-2">
+                                <div className="flex items-center gap-2">
+                                  <span className="font-semibold text-sm">
+                                    Chapter {chapter.index + 1}: {chapter.title}
+                                  </span>
+                                  {chapter.status === 'generating' && (
+                                    <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
+                                  )}
+                                  {chapter.status === 'completed' && (
+                                    <CheckCircle className="w-4 h-4 text-green-600" />
+                                  )}
+                                </div>
+                                {chapter.preview && (
+                                  <div className="text-sm text-muted-foreground bg-muted/30 rounded p-3">
+                                    {chapter.preview}
+                                  </div>
+                                )}
+                                <div className="text-xs text-muted-foreground">
+                                  {chapter.contentLength > 0 && (
+                                    <span>{chapter.contentLength.toLocaleString()}자 생성됨</span>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        ) : outline?.chapters[selectedChapter].content ? (
                           <div className="prose prose-sm dark:prose-invert max-w-none">
                             <ReactMarkdown remarkPlugins={[remarkGfm]}>
                               {outline.chapters[selectedChapter].content}

@@ -33,12 +33,14 @@ interface BookGenerationProgressProps {
   bookId: string
   onComplete?: (chapters: Chapter[]) => void
   onError?: (error: string) => void
+  onProgress?: (chapters: Chapter[]) => void // 실시간 진행 상황 전달
 }
 
 export function BookGenerationProgress({
   bookId,
   onComplete,
-  onError
+  onError,
+  onProgress
 }: BookGenerationProgressProps) {
   const [progress, setProgress] = useState<GenerationProgress | null>(null)
   const [expandedChapter, setExpandedChapter] = useState<number | null>(null)
@@ -71,6 +73,11 @@ export function BookGenerationProgress({
         // 실제 진행 시작
         setIsWaiting(false)
         setProgress(data)
+
+        // 실시간 진행 상황을 부모로 전달 (미리보기 업데이트용)
+        if (onProgress && data.chapters.length > 0) {
+          onProgress(data.chapters)
+        }
 
         // 완료 시
         if (data.isComplete) {

@@ -83,7 +83,8 @@ export async function GET(
             index: idx,
             title: chapter.title,
             status: chapter.status,
-            contentLength: chapter.content.length
+            contentLength: chapter.content.length,
+            preview: chapter.content.slice(0, 100) + (chapter.content.length > 100 ? '...' : '')
           }))
 
           const elapsedTime = Date.now() - progress.startedAt
