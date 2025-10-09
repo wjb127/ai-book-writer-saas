@@ -193,7 +193,7 @@ export default function LandingPage() {
             transition={{ delay: 0.3 }}
             className="text-lg md:text-2xl mb-6 font-semibold"
           >
-            성공하면 <span className="text-amber-400">월 1억 작가</span>
+            성공하면 <span className="text-amber-400">월 1천만원 작가</span>
             <br />
             실패해도 <span className="text-amber-400">커피 두 잔 값</span>
           </motion.p>
@@ -612,12 +612,12 @@ export default function LandingPage() {
       {/* Future Timeline Section - 3개월 후 미래 */}
       <section className="py-24 bg-slate-900">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl md:text-5xl font-bold text-center mb-4">
+          <h2 className="text-3xl md:text-5xl font-bold text-center mb-4 text-white">
             🔮 3개월 후 당신의
             <br />
             <span className="text-amber-300">두 가지 미래</span>
           </h2>
-          <p className="text-lg md:text-xl text-center text-white/300 mb-16">
+          <p className="text-lg md:text-xl text-center text-white/80 mb-16">
             어느 쪽을 선택하시겠습니까?
           </p>
 
@@ -1088,7 +1088,7 @@ export default function LandingPage() {
             {/* 최종 메시지 */}
             <div className="mb-12">
               <p className="text-3xl md:text-5xl font-bold mb-4 text-white">
-                성공하면 <span className="text-amber-400">월 1억 작가</span>
+                성공하면 <span className="text-amber-400">월 1천만원 작가</span>
               </p>
               <p className="text-3xl md:text-5xl font-bold mb-8 text-white">
                 실패해도 <span className="text-amber-400">커피 두 잔 값</span>
