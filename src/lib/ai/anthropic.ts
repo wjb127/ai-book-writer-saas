@@ -164,7 +164,14 @@ Create an outline that is:
 5. **Emotionally engaging**: Connect with readers' aspirations and pain points
 6. **Story-driven**: Frame concepts as compelling narratives
 
-Create an outline with 6-8 chapters that will hook readers in the first chapter - making them immediately see the value and want to continue.
+<book_specifications>
+- Total chapters: **10 chapters** (표준)
+- Total length: **100 pages** (A4 기준)
+- Per chapter: approximately **6,000 characters** (약 10페이지)
+- Total book: approximately **60,000 characters**
+</book_specifications>
+
+Create an outline with exactly 10 chapters that will hook readers in the first chapter - making them immediately see the value and want to continue.
 
 The book title should be catchy and promise a clear transformation or benefit.
 
@@ -177,11 +184,13 @@ Return the outline in the following JSON format:
       "number": 1,
       "title": "Chapter title (First chapter should deliver an Aha moment)",
       "keyPoints": ["Specific, concrete point 1", "Surprising insight 2", "Emotional connection 3"],
-      "estimatedWords": 2500,
+      "estimatedWords": 6000,
       "ahaMoment": "The key insight readers will have (only for chapter 1)"
     }
   ]
 }
+
+IMPORTANT: Create exactly 10 chapters, each with estimatedWords: 6000 to reach the target 100-page book (60,000 characters total).
 
 Make the first chapter title especially compelling - it should promise and deliver a paradigm-shifting insight that makes readers immediately want to continue.`
 
@@ -212,7 +221,7 @@ export async function generateFirstChapterWithAha(
   chapterTitle: string,
   keyPoints: string[],
   ahaMoment: string,
-  targetWords: number = 2500
+  targetWords: number = 6000
 ) {
   logger.info('Starting first chapter generation (Sonnet 4.5)', {
     bookTitle,
@@ -262,12 +271,16 @@ ${keyPoints.map((point, i) => `${i + 1}. ${point}`).join('\n')}
 </writing_instructions>
 
 <structure>
-- **강렬한 도입** (200-300 words): 독자의 기존 생각을 뒤흔드는 시작
-- **문제 제기** (300-400 words): 독자가 공감할 수 있는 현실적 문제
-- **핵심 인사이트** (500-700 words): 깨달음을 전달하는 메인 섹션
-- **구체적 예시/스토리** (400-500 words): 개념을 생생하게 만드는 실제 사례
-- **실천 가능한 통찰** (300-400 words): 독자가 바로 적용할 수 있는 것
-- **다음 단계 예고** (200-300 words): 2장에 대한 기대감 형성
+이 챕터는 **A4 용지 10페이지 분량 (약 6,000자)**을 목표로 합니다.
+
+- **강렬한 도입** (600-800자): 독자의 기존 생각을 뒤흔드는 시작
+- **문제 제기** (800-1,000자): 독자가 공감할 수 있는 현실적 문제
+- **핵심 인사이트** (1,500-2,000자): 깨달음을 전달하는 메인 섹션
+- **구체적 예시/스토리** (1,200-1,500자): 개념을 생생하게 만드는 실제 사례
+- **실천 가능한 통찰** (800-1,000자): 독자가 바로 적용할 수 있는 것
+- **다음 단계 예고** (600-800자): 2장에 대한 기대감 형성
+
+IMPORTANT: 각 섹션의 분량을 충실히 지켜 총 6,000자 이상을 작성하세요. 짧은 내용보다는 구체적이고 상세한 설명을 제공하세요.
 </structure>
 
 Write the complete chapter in markdown format. Make it so compelling that readers can't wait to continue to the next chapter.
@@ -302,7 +315,7 @@ export async function generateChapterContent(
   chapterTitle: string,
   chapterNumber: number,
   keyPoints: string[],
-  targetWords: number = 2500
+  targetWords: number = 6000
 ) {
   logger.info('Starting chapter generation (Haiku 3.5)', {
     bookTitle,
@@ -328,13 +341,43 @@ ${keyPoints.map((point, i) => `${i + 1}. ${point}`).join('\n')}
 </key_points>
 
 <requirements>
-- Write approximately ${targetWords} words in Korean
+- Write approximately ${targetWords} characters (about 10 A4 pages) in Korean
 - Use clear, engaging language
-- Include practical examples
+- Include practical examples and real-world scenarios
 - Structure with proper sections and subsections
 - Maintain an educational yet conversational tone
 - Add introduction and conclusion
 - Use markdown formatting effectively
+
+<structure_guide>
+For a full chapter (6,000 characters ≈ 10 A4 pages), follow this structure:
+
+1. **서론/도입** (600-800자)
+   - 챕터의 핵심 질문이나 문제 제기
+   - 독자의 호기심 자극
+
+2. **핵심 개념 설명** (1,500-2,000자)
+   - ${keyPoints[0] || '첫 번째 키포인트'} 상세 설명
+   - 구체적인 예시와 데이터
+   - 실용적인 접근법
+
+3. **심화 내용** (1,500-2,000자)
+   - ${keyPoints[1] || '두 번째 키포인트'} 및 ${keyPoints[2] || '세 번째 키포인트'} 설명
+   - 실제 사례 연구
+   - 단계별 가이드
+
+4. **실전 적용** (1,000-1,200자)
+   - 실습 예제
+   - 체크리스트
+   - 흔한 실수와 해결법
+
+5. **요약 및 정리** (600-800자)
+   - 핵심 내용 복습
+   - 다음 챕터 예고
+   - 액션 아이템
+
+IMPORTANT: Each section should be detailed and comprehensive. Aim for 6,000+ characters total. Don't write superficially - provide deep, valuable content.
+</structure_guide>
 </requirements>
 
 Write the complete chapter content in markdown format.`

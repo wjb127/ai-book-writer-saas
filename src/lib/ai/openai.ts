@@ -95,7 +95,14 @@ Create an outline that is:
 5. **Emotionally engaging**: Connect with readers' aspirations and pain points
 6. **Story-driven**: Frame concepts as compelling narratives
 
-Create an outline with 6-8 chapters that will hook readers in the first chapter - making them immediately see the value and want to continue.
+<book_specifications>
+- Total chapters: **10 chapters** (표준)
+- Total length: **100 pages** (A4 기준)
+- Per chapter: approximately **6,000 characters** (약 10페이지)
+- Total book: approximately **60,000 characters**
+</book_specifications>
+
+Create an outline with exactly 10 chapters that will hook readers in the first chapter - making them immediately see the value and want to continue.
 
 The book title should be catchy and promise a clear transformation or benefit.
 
@@ -108,11 +115,13 @@ Return the outline in the following JSON format:
       "number": 1,
       "title": "Chapter title (First chapter should deliver an Aha moment)",
       "keyPoints": ["Specific, concrete point 1", "Surprising insight 2", "Emotional connection 3"],
-      "estimatedWords": 2500,
+      "estimatedWords": 6000,
       "ahaMoment": "The key insight readers will have (only for chapter 1)"
     }
   ]
 }
+
+IMPORTANT: Create exactly 10 chapters, each with estimatedWords: 6000 to reach the target 100-page book (60,000 characters total).
 
 Make the first chapter title especially compelling - it should promise and deliver a paradigm-shifting insight that makes readers immediately want to continue.`
 

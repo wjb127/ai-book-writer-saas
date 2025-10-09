@@ -43,16 +43,27 @@ export async function POST(request: NextRequest) {
 
       const sampleOutline = {
         title: `${topic}: 완벽 가이드`,
-        subtitle: '당신의 성공을 위한 실전 로드맵',
-        chapters: Array.from({ length: 6 }, (_, i) => ({
+        subtitle: '당신의 성공을 위한 실전 로드맵 (100페이지 완성판)',
+        chapters: Array.from({ length: 10 }, (_, i) => ({
           number: i + 1,
-          title: `Chapter ${i + 1}: ${['왜 지금 시작해야 하는가', '핵심 원리 이해하기', '실전 단계별 가이드', '고급 전략과 기법', '실제 성공 사례', '다음 단계로'][i]}`,
+          title: `Chapter ${i + 1}: ${[
+            '왜 지금 시작해야 하는가',
+            '핵심 원리 이해하기',
+            '기초부터 탄탄하게',
+            '실전 단계별 가이드',
+            '고급 전략과 기법',
+            '실수를 피하는 방법',
+            '실제 성공 사례 분석',
+            '지속가능한 성장 전략',
+            '다음 레벨로 도약하기',
+            '마무리와 다음 단계'
+          ][i]}`,
           keyPoints: [
             `핵심 포인트 1`,
             `핵심 포인트 2`,
             `핵심 포인트 3`
           ],
-          estimatedWords: 2500,
+          estimatedWords: 6000,
           ahaMoment: i === 0 ? '이 개념을 이해하는 순간, 모든 것이 달라집니다' : undefined
         }))
       }

@@ -118,3 +118,4 @@ The dev server automatically finds an available port if 3000 is occupied. Check 
 
 ### API Key Configuration
 Without API keys, the app operates in demo mode with sample data. This allows full UI/UX testing without incurring API costs.
+- 앞으로는 깃헙 푸시하기 전에 내 컨펌 받도록 해
