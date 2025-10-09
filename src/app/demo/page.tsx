@@ -265,31 +265,31 @@ ${chapter.keyPoints[0]}에 대한 내용이 여기에 표시됩니다...
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
+    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900">
       {/* Navigation */}
-      <nav className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <nav className="border-b border-slate-700 bg-slate-900/95 backdrop-blur supports-[backdrop-filter]:bg-slate-900/60">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center space-x-2">
-            <BookOpen className="w-6 h-6 text-primary" />
-            <span className="font-bold text-xl">AI Book Writer</span>
+            <BookOpen className="w-6 h-6 text-amber-400" />
+            <span className="font-bold text-xl text-white">AI Book Writer</span>
           </Link>
           <div className="flex items-center space-x-4">
-            <Badge variant="secondary" className="hidden sm:flex">
+            <Badge className="hidden sm:flex bg-amber-400/20 text-amber-400 border-amber-400/30">
               <Sparkles className="w-3 h-3 mr-1" />
               무료 데모 (1개 챕터 + 미리보기)
             </Badge>
-            <Badge variant="secondary" className="sm:hidden">
+            <Badge className="sm:hidden bg-amber-400/20 text-amber-400 border-amber-400/30">
               <Sparkles className="w-3 h-3 mr-1" />
               데모
             </Badge>
             <Link href="/create">
-              <Button variant="outline" size="sm">
+              <Button size="sm" className="bg-amber-400 hover:bg-amber-500 text-slate-900 font-semibold">
                 <Crown className="w-4 h-4 mr-2" />
                 전체 버전
               </Button>
             </Link>
             <Link href="/">
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" className="text-white hover:text-amber-400 hover:bg-slate-800">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 홈
               </Button>
@@ -305,51 +305,53 @@ ${chapter.keyPoints[0]}에 대한 내용이 여기에 표시됩니다...
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <Card>
+            <Card className="bg-slate-800 border-slate-700">
               <CardHeader>
                 <div className="space-y-2">
-                  <Badge variant="outline" className="mb-2">
+                  <Badge className="mb-2 bg-amber-400/20 text-amber-400 border-amber-400/30">
                     <Sparkles className="w-3 h-3 mr-1" />
                     최신 AI 엔진
                   </Badge>
-                  <CardTitle className="text-2xl">전자책 주제 설정</CardTitle>
-                  <CardDescription>
-                    AI가 독자에게 <strong>"아하!"</strong> 모먼트를 선사하는 전자책을 만듭니다
+                  <CardTitle className="text-2xl text-white">전자책 주제 설정</CardTitle>
+                  <CardDescription className="text-slate-300">
+                    AI가 독자에게 <strong className="text-amber-400">&ldquo;아하!&rdquo;</strong> 모먼트를 선사하는 전자책을 만듭니다
                   </CardDescription>
                 </div>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="space-y-2">
-                  <Label htmlFor="topic">전자책 주제</Label>
+                  <Label htmlFor="topic" className="text-white">전자책 주제</Label>
                   <Input
                     id="topic"
                     placeholder="예: AI 시대 생존 전략, 월급 외 수입 만들기, 효율적인 시간 관리"
                     value={topic}
                     onChange={(e) => setTopic(e.target.value)}
+                    className="bg-slate-900 border-slate-600 text-white placeholder:text-slate-400"
                   />
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-slate-400">
                     💡 구체적이고 변화를 약속하는 주제일수록 좋습니다
                   </p>
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="description">상세 설명</Label>
+                  <Label htmlFor="description" className="text-white">상세 설명</Label>
                   <Textarea
                     id="description"
                     placeholder="이 전자책을 읽는 독자가 어떤 문제를 해결하고, 어떤 변화를 경험하게 될까요? 구체적으로 설명해주세요.&#10;&#10;예시: 직장인들이 퇴근 후 2-3시간으로 월 100만원 이상의 부수입을 만드는 실전 전략과 구체적인 방법들을 단계별로 알려주는 책입니다."
                     rows={6}
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
+                    className="bg-slate-900 border-slate-600 text-white placeholder:text-slate-400"
                   />
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-slate-400">
                     💡 독자의 문제, 목표, 기대하는 변화를 구체적으로 작성하세요
                   </p>
                 </div>
 
                 <div className="space-y-4">
-                  <div className="bg-muted p-4 rounded-lg">
-                    <h4 className="font-semibold mb-3 flex items-center">
-                      <Sparkles className="w-4 h-4 mr-2" />
+                  <div className="bg-slate-900 p-4 rounded-lg border border-slate-700">
+                    <h4 className="font-semibold mb-3 flex items-center text-white">
+                      <Sparkles className="w-4 h-4 mr-2 text-amber-400" />
                       빠른 시작 - 예시로 체험하기
                     </h4>
                     <div className="grid gap-2">
@@ -358,12 +360,12 @@ ${chapter.keyPoints[0]}에 대한 내용이 여기에 표시됩니다...
                           key={i}
                           variant="outline"
                           size="sm"
-                          className="justify-start text-left h-auto py-2"
+                          className="justify-start text-left h-auto py-2 bg-slate-800 border-slate-600 hover:bg-slate-700 text-white"
                           onClick={() => loadExample(example)}
                         >
                           <div className="flex-1">
                             <div className="font-medium">{example.topic}</div>
-                            <div className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
+                            <div className="text-xs text-slate-400 mt-0.5 line-clamp-1">
                               {example.description.substring(0, 60)}...
                             </div>
                           </div>
@@ -372,12 +374,12 @@ ${chapter.keyPoints[0]}에 대한 내용이 여기에 표시됩니다...
                     </div>
                   </div>
 
-                  <div className="bg-muted p-4 rounded-lg">
-                    <h4 className="font-semibold mb-2 flex items-center">
-                      <Sparkles className="w-4 h-4 mr-2" />
+                  <div className="bg-slate-900 p-4 rounded-lg border border-slate-700">
+                    <h4 className="font-semibold mb-2 flex items-center text-white">
+                      <Sparkles className="w-4 h-4 mr-2 text-amber-400" />
                       데모 모드에서 가능한 것
                     </h4>
-                    <ul className="space-y-1 text-sm text-muted-foreground">
+                    <ul className="space-y-1 text-sm text-slate-300">
                       <li>✅ 고급 AI로 독자를 사로잡는 목차 생성</li>
                       <li>✅ 첫 인상을 강렬하게 만드는 1장 생성</li>
                       <li>👁️ 2-3번째 챕터 미리보기</li>
@@ -386,8 +388,8 @@ ${chapter.keyPoints[0]}에 대한 내용이 여기에 표시됩니다...
                   </div>
                 </div>
 
-                <Button 
-                  className="w-full" 
+                <Button
+                  className="w-full bg-amber-400 hover:bg-amber-500 text-slate-900 font-semibold"
                   size="lg"
                   onClick={handleGenerateOutline}
                   disabled={!topic || !description || isGenerating}
@@ -415,13 +417,13 @@ ${chapter.keyPoints[0]}에 대한 내용이 여기에 표시됩니다...
             className="grid lg:grid-cols-[400px_1fr] xl:grid-cols-[450px_1fr] gap-6"
           >
             {/* 목차 사이드바 */}
-            <Card className="h-fit max-h-[calc(100vh-8rem)] sticky top-4">
+            <Card className="h-fit max-h-[calc(100vh-8rem)] sticky top-4 bg-slate-800 border-slate-700">
               <CardHeader className="pb-4">
-                <CardTitle className="text-lg">목차</CardTitle>
+                <CardTitle className="text-lg text-white">목차</CardTitle>
                 <CardDescription>
-                  <div className="font-semibold text-foreground leading-snug">{outline?.title}</div>
+                  <div className="font-semibold text-amber-400 leading-snug">{outline?.title}</div>
                   {outline?.subtitle && (
-                    <div className="text-xs mt-1.5 leading-relaxed">{outline.subtitle}</div>
+                    <div className="text-xs mt-1.5 leading-relaxed text-slate-300">{outline.subtitle}</div>
                   )}
                 </CardDescription>
               </CardHeader>
@@ -437,7 +439,11 @@ ${chapter.keyPoints[0]}에 대한 내용이 여기에 표시됩니다...
                       >
                         <Button
                           variant={selectedChapter === index ? 'default' : 'ghost'}
-                          className="w-full justify-start text-left relative h-auto py-3 px-4"
+                          className={`w-full justify-start text-left relative h-auto py-3 px-4 ${
+                            selectedChapter === index
+                              ? 'bg-amber-400 hover:bg-amber-500 text-slate-900'
+                              : 'bg-slate-900 hover:bg-slate-700 text-white border-slate-600'
+                          }`}
                           onClick={() => setSelectedChapter(index)}
                           disabled={chapter.isLocked}
                         >
@@ -447,14 +453,14 @@ ${chapter.keyPoints[0]}에 대한 내용이 여기에 표시됩니다...
                               <div className="font-medium flex items-center gap-2 leading-relaxed">
                                 <span className="line-clamp-2">{chapter.title}</span>
                                 {chapter.ahaMoment && (
-                                  <Badge variant="default" className="text-xs shrink-0 ml-1">
+                                  <Badge className="text-xs shrink-0 ml-1 bg-amber-400/20 text-amber-400 border-amber-400/30">
                                     💡 아하!
                                   </Badge>
                                 )}
                                 {chapter.isLocked && <Lock className="w-3 h-3 shrink-0 ml-1" />}
                                 {chapter.isPreview && <Eye className="w-3 h-3 shrink-0 ml-1" />}
                               </div>
-                              <div className="text-xs text-muted-foreground mt-2">
+                              <div className={`text-xs mt-2 ${selectedChapter === index ? 'text-slate-700' : 'text-slate-400'}`}>
                                 약 {chapter.estimatedWords.toLocaleString()}자
                               </div>
                             </div>

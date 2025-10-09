@@ -102,17 +102,17 @@ export default function CreatePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
+    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900">
       {/* Navigation */}
-      <nav className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <nav className="border-b border-slate-700 bg-slate-900/95 backdrop-blur supports-[backdrop-filter]:bg-slate-900/60">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center space-x-2">
-            <BookOpen className="w-6 h-6 text-primary" />
-            <span className="font-bold text-xl">AI Book Writer</span>
+            <BookOpen className="w-6 h-6 text-amber-400" />
+            <span className="font-bold text-xl text-white">AI Book Writer</span>
           </Link>
           <div className="flex items-center space-x-4">
             <Link href="/">
-              <Button variant="ghost">
+              <Button variant="ghost" className="text-white hover:text-amber-400 hover:bg-slate-800">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 홈으로
               </Button>
@@ -128,29 +128,29 @@ export default function CreatePage() {
           transition={{ duration: 0.5 }}
           className="max-w-3xl mx-auto"
         >
-          <Card>
+          <Card className="bg-slate-800 border-slate-700">
             <CardHeader>
-              <CardTitle className="text-2xl">새 전자책 만들기</CardTitle>
-              <CardDescription>
+              <CardTitle className="text-2xl text-white">새 전자책 만들기</CardTitle>
+              <CardDescription className="text-slate-300">
                 AI가 전문적인 전자책을 생성합니다
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               {/* 빠른 시작 예시 */}
               <div className="space-y-2">
-                <Label>빠른 시작 예시</Label>
+                <Label className="text-white">빠른 시작 예시</Label>
                 <div className="grid gap-2">
                   {quickStartExamples.map((example, i) => (
                     <Button
                       key={i}
                       variant="outline"
                       size="sm"
-                      className="justify-start text-left h-auto py-2"
+                      className="justify-start text-left h-auto py-2 bg-slate-900 border-slate-600 hover:bg-slate-700 text-white"
                       onClick={() => loadExample(example)}
                     >
                       <div className="flex-1">
                         <div className="font-medium">{example.topic}</div>
-                        <div className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
+                        <div className="text-xs text-slate-400 mt-0.5 line-clamp-1">
                           {example.description.substring(0, 60)}...
                         </div>
                       </div>
@@ -159,20 +159,20 @@ export default function CreatePage() {
                 </div>
               </div>
 
-              <Separator />
+              <Separator className="bg-slate-700" />
 
               {/* 설정 섹션 */}
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>AI 모델</Label>
+                  <Label className="text-white">AI 모델</Label>
                   <Select
                     value={settings.aiModel}
                     onValueChange={(value: any) => setSettings({...settings, aiModel: value})}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="bg-slate-900 border-slate-600 text-white">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-slate-900 border-slate-600">
                       <SelectItem value="gpt-4.1-nano">GPT-4.1 Nano (최저가 💰)</SelectItem>
                       <SelectItem value="gpt-4o-mini">GPT-4o Mini (빠름 ⚡)</SelectItem>
                       <SelectItem value="gpt-4.1-mini">GPT-4.1 Mini (균형)</SelectItem>
@@ -183,15 +183,15 @@ export default function CreatePage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>언어</Label>
+                  <Label className="text-white">언어</Label>
                   <Select
                     value={settings.language}
                     onValueChange={(value: any) => setSettings({...settings, language: value})}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="bg-slate-900 border-slate-600 text-white">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-slate-900 border-slate-600">
                       <SelectItem value="ko">한국어</SelectItem>
                       <SelectItem value="en">English</SelectItem>
                       <SelectItem value="ja">日本語</SelectItem>
@@ -201,15 +201,15 @@ export default function CreatePage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>문체</Label>
+                  <Label className="text-white">문체</Label>
                   <Select
                     value={settings.tone}
                     onValueChange={(value: any) => setSettings({...settings, tone: value})}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="bg-slate-900 border-slate-600 text-white">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-slate-900 border-slate-600">
                       <SelectItem value="professional">전문적</SelectItem>
                       <SelectItem value="casual">캐주얼</SelectItem>
                       <SelectItem value="academic">학술적</SelectItem>
@@ -219,41 +219,44 @@ export default function CreatePage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="audience">대상 독자</Label>
+                  <Label htmlFor="audience" className="text-white">대상 독자</Label>
                   <Input
                     id="audience"
                     placeholder="예: 초보자, 전문가, 학생"
                     value={settings.targetAudience}
                     onChange={(e) => setSettings({...settings, targetAudience: e.target.value})}
+                    className="bg-slate-900 border-slate-600 text-white placeholder:text-slate-400"
                   />
                 </div>
               </div>
 
-              <Separator />
+              <Separator className="bg-slate-700" />
 
               <div className="space-y-2">
-                <Label htmlFor="topic">전자책 주제</Label>
+                <Label htmlFor="topic" className="text-white">전자책 주제</Label>
                 <Input
                   id="topic"
                   placeholder="예: Python 프로그래밍, 디지털 마케팅, 건강한 식습관"
                   value={topic}
                   onChange={(e) => setTopic(e.target.value)}
+                  className="bg-slate-900 border-slate-600 text-white placeholder:text-slate-400"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="description">상세 설명</Label>
+                <Label htmlFor="description" className="text-white">상세 설명</Label>
                 <Textarea
                   id="description"
                   placeholder="전자책에서 다루고 싶은 내용, 목표, 특별히 포함하고 싶은 주제 등을 자세히 설명해주세요."
                   rows={8}
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
+                  className="bg-slate-900 border-slate-600 text-white placeholder:text-slate-400"
                 />
               </div>
 
               <Button
-                className="w-full"
+                className="w-full bg-amber-400 hover:bg-amber-500 text-slate-900 font-semibold"
                 size="lg"
                 onClick={handleGenerateOutline}
                 disabled={!topic || !description || isGenerating}

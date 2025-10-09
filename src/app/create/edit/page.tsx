@@ -526,16 +526,16 @@ export default function EditPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-secondary/20">
-      <nav className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <div className="min-h-screen bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900">
+      <nav className="border-b border-slate-700 bg-slate-900/95 backdrop-blur supports-[backdrop-filter]:bg-slate-900/60">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center space-x-2">
-            <BookOpen className="w-6 h-6 text-primary" />
-            <span className="font-bold text-xl">AI Book Writer</span>
+            <BookOpen className="w-6 h-6 text-amber-400" />
+            <span className="font-bold text-xl text-white">AI Book Writer</span>
           </Link>
           <div className="flex items-center space-x-4">
             <Link href="/create">
-              <Button variant="ghost">
+              <Button variant="ghost" className="text-white hover:text-amber-400 hover:bg-slate-800">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 처음부터
               </Button>

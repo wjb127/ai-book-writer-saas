@@ -242,14 +242,9 @@ export default function LandingPage() {
                 size="lg"
                 className="group bg-amber-400 hover:bg-amber-500 text-slate-900 font-bold text-base md:text-lg px-8 md:px-12 py-4 md:py-6 rounded-xl shadow-xl shadow-amber-400/20 hover:shadow-2xl hover:shadow-amber-400/30 transition-all"
               >
-                <span className="flex flex-col items-center gap-2">
-                  <span className="flex items-center gap-3">
-                    🚀 지금 10분 만에 작가 되기
-                    <ArrowRight className="w-5 h-5 md:w-6 md:h-6 group-hover:translate-x-2 transition-transform" />
-                  </span>
-                  <span className="text-xs md:text-sm font-normal">
-                    회원가입 없이 바로 시작
-                  </span>
+                <span className="flex items-center gap-3">
+                  🚀 지금 10분 만에 작가 되기
+                  <ArrowRight className="w-5 h-5 md:w-6 md:h-6 group-hover:translate-x-2 transition-transform" />
                 </span>
               </Button>
             </Link>
@@ -770,21 +765,6 @@ export default function LandingPage() {
                   <p className="text-sm text-white/70">전자책 1권 (150페이지)</p>
                 </div>
 
-                <div className="bg-slate-900 rounded-lg p-4 mb-6 border border-slate-700">
-                  <div className="flex items-center justify-between text-sm mb-2">
-                    <span className="text-white/70">API 원가 (Claude 4.5)</span>
-                    <span className="font-bold text-white">₩1,450</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm mb-2">
-                    <span className="text-white/70">당신의 비용</span>
-                    <span className="font-bold text-white">₩9,900</span>
-                  </div>
-                  <Separator className="my-2 bg-slate-700" />
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-white">순이익 마진</span>
-                    <span className="font-bold text-amber-400 text-lg">583%</span>
-                  </div>
-                </div>
 
                 <ul className="space-y-3 mb-6">
                   <li className="flex items-center gap-2">
@@ -853,21 +833,6 @@ export default function LandingPage() {
                   <p className="text-lg font-bold text-amber-400 mt-2">권당 ₩6,900</p>
                 </div>
 
-                <div className="bg-white/10 backdrop-blur-lg rounded-lg p-4 mb-6 border border-white/20">
-                  <div className="flex items-center justify-between text-sm mb-2">
-                    <span>API 원가 (10권)</span>
-                    <span className="font-bold">₩14,500</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm mb-2">
-                    <span>당신의 비용</span>
-                    <span className="font-bold text-amber-400">₩69,000</span>
-                  </div>
-                  <Separator className="my-2 bg-white/20" />
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold">순이익 마진</span>
-                    <span className="font-bold text-amber-400 text-lg">376%</span>
-                  </div>
-                </div>
 
                 <ul className="space-y-3 mb-6">
                   <li className="flex items-center gap-2">
@@ -1010,26 +975,6 @@ export default function LandingPage() {
             </Card>
           </div>
 
-          {/* 환불 보장 */}
-          <div className="max-w-2xl mx-auto">
-            <Card className="p-8 md:p-10 bg-slate-800 text-white text-center border border-amber-400/30">
-              <Shield className="w-16 h-16 md:w-20 md:h-20 mx-auto mb-6 text-amber-400" />
-              <h3 className="text-3xl md:text-4xl font-bold mb-4">
-                7일 무조건 환불 보장
-              </h3>
-              <p className="text-xl md:text-2xl mb-4">
-                만족하지 못하시면
-                <br />
-                <span className="font-bold text-amber-400">100% 전액 환불</span>
-              </p>
-              <Separator className="my-6 bg-white/30" />
-              <p className="text-lg md:text-xl">
-                질문 없이 즉시 환불해드립니다.
-                <br />
-                품질에 자신 있기 때문입니다.
-              </p>
-            </Card>
-          </div>
         </div>
       </section>
 
