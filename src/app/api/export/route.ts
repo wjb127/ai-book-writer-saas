@@ -1,7 +1,44 @@
 import { NextRequest, NextResponse } from 'next/server'
-import jsPDF from 'jspdf'
+import { PDFDocument, rgb, StandardFonts, PDFFont } from 'pdf-lib'
+import fontkit from '@pdf-lib/fontkit'
 import { Document, Paragraph, TextRun, HeadingLevel, AlignmentType, Packer } from 'docx'
 import Epub from 'epub-gen-memory'
+import fs from 'fs'
+import path from 'path'
+
+// 텍스트를 줄바꿈하는 헬퍼 함수
+function wrapText(text: string, maxWidth: number, fontSize: number, font: PDFFont): string[] {
+  const lines: string[] = []
+  const paragraphs = text.split('\n')
+
+  paragraphs.forEach(paragraph => {
+    if (!paragraph.trim()) {
+      lines.push('')
+      return
+    }
+
+    const words = paragraph.split(' ')
+    let currentLine = ''
+
+    words.forEach(word => {
+      const testLine = currentLine ? `${currentLine} ${word}` : word
+      const width = font.widthOfTextAtSize(testLine, fontSize)
+
+      if (width > maxWidth && currentLine) {
+        lines.push(currentLine)
+        currentLine = word
+      } else {
+        currentLine = testLine
+      }
+    })
+
+    if (currentLine) {
+      lines.push(currentLine)
+    }
+  })
+
+  return lines
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,85 +51,132 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // PDF 생성 (간단한 예제)
+    // PDF 생성 (한글 지원)
     if (format === 'pdf') {
-      const pdf = new jsPDF()
-      const pageHeight = pdf.internal.pageSize.height
-      const pageWidth = pdf.internal.pageSize.width
-      const margin = 20
-      const lineHeight = 7
-      let yPosition = margin
+      // PDF 문서 생성
+      const pdfDoc = await PDFDocument.create()
+
+      // 한글 폰트 로드
+      pdfDoc.registerFontkit(fontkit)
+      const fontPath = path.join(process.cwd(), 'public', 'fonts', 'NanumGothic-Regular.ttf')
+      const fontBytes = fs.readFileSync(fontPath)
+      const koreanFont = await pdfDoc.embedFont(fontBytes)
+
+      const pageWidth = 595 // A4 width in points
+      const pageHeight = 842 // A4 height in points
+      const margin = 50
+      const lineHeight = 20
+      const maxWidth = pageWidth - margin * 2
 
       // 타이틀 페이지
-      pdf.setFontSize(24)
-      pdf.text(outline.title, pageWidth / 2, 50, { align: 'center' })
-      pdf.setFontSize(12)
-      pdf.text('AI Book Writer로 생성됨', pageWidth / 2, 70, { align: 'center' })
-      pdf.addPage()
-
-      // 목차
-      yPosition = margin
-      pdf.setFontSize(18)
-      pdf.text('목차', margin, yPosition)
-      yPosition += lineHeight * 2
-
-      pdf.setFontSize(12)
-      outline.chapters.forEach((chapter: any) => {
-        if (yPosition > pageHeight - margin) {
-          pdf.addPage()
-          yPosition = margin
-        }
-        pdf.text(`${chapter.number}. ${chapter.title}`, margin, yPosition)
-        yPosition += lineHeight
+      let page = pdfDoc.addPage([pageWidth, pageHeight])
+      page.drawText(outline.title, {
+        x: pageWidth / 2 - (outline.title.length * 12) / 2,
+        y: pageHeight - 200,
+        size: 24,
+        font: koreanFont,
+        color: rgb(0, 0, 0),
+      })
+      page.drawText('AI Book Writer로 생성됨', {
+        x: pageWidth / 2 - 80,
+        y: pageHeight - 240,
+        size: 12,
+        font: koreanFont,
+        color: rgb(0.5, 0.5, 0.5),
       })
 
-      pdf.addPage()
+      // 목차 페이지
+      page = pdfDoc.addPage([pageWidth, pageHeight])
+      let yPosition = pageHeight - margin
+
+      page.drawText('목차', {
+        x: margin,
+        y: yPosition,
+        size: 18,
+        font: koreanFont,
+        color: rgb(0, 0, 0),
+      })
+      yPosition -= lineHeight * 2
+
+      outline.chapters.forEach((chapter: any) => {
+        if (yPosition < margin + lineHeight) {
+          page = pdfDoc.addPage([pageWidth, pageHeight])
+          yPosition = pageHeight - margin
+        }
+
+        const tocLine = `${chapter.number}. ${chapter.title}`
+        page.drawText(tocLine, {
+          x: margin,
+          y: yPosition,
+          size: 12,
+          font: koreanFont,
+          color: rgb(0, 0, 0),
+        })
+        yPosition -= lineHeight
+      })
 
       // 각 챕터 내용
       outline.chapters.forEach((chapter: any) => {
         if (chapter.content) {
-          pdf.addPage()
-          yPosition = margin
-          
-          // 챕터 제목
-          pdf.setFontSize(16)
-          const titleLines = pdf.splitTextToSize(`Chapter ${chapter.number}: ${chapter.title}`, pageWidth - margin * 2)
-          titleLines.forEach((line: string) => {
-            if (yPosition > pageHeight - margin) {
-              pdf.addPage()
-              yPosition = margin
-            }
-            pdf.text(line, margin, yPosition)
-            yPosition += lineHeight * 1.5
-          })
-          
-          yPosition += lineHeight
+          page = pdfDoc.addPage([pageWidth, pageHeight])
+          yPosition = pageHeight - margin
 
-          // 챕터 내용
-          pdf.setFontSize(11)
-          const contentLines = pdf.splitTextToSize(
-            chapter.content.replace(/[#*`]/g, '').replace(/\n\n/g, '\n'), 
-            pageWidth - margin * 2
-          )
-          
-          contentLines.forEach((line: string) => {
-            if (yPosition > pageHeight - margin) {
-              pdf.addPage()
-              yPosition = margin
+          // 챕터 제목
+          const chapterTitle = `Chapter ${chapter.number}: ${chapter.title}`
+          const titleLines = wrapText(chapterTitle, maxWidth, 16, koreanFont)
+
+          titleLines.forEach((line: string) => {
+            if (yPosition < margin + lineHeight) {
+              page = pdfDoc.addPage([pageWidth, pageHeight])
+              yPosition = pageHeight - margin
             }
-            pdf.text(line, margin, yPosition)
-            yPosition += lineHeight
+            page.drawText(line, {
+              x: margin,
+              y: yPosition,
+              size: 16,
+              font: koreanFont,
+              color: rgb(0, 0, 0),
+            })
+            yPosition -= lineHeight * 1.5
+          })
+
+          yPosition -= lineHeight
+
+          // 챕터 내용 (마크다운 제거)
+          const cleanContent = chapter.content
+            .replace(/^#{1,6}\s+/gm, '') // 헤딩 제거
+            .replace(/\*\*(.*?)\*\*/g, '$1') // Bold 제거
+            .replace(/\*(.*?)\*/g, '$1') // Italic 제거
+            .replace(/`(.*?)`/g, '$1') // Code 제거
+            .replace(/^\s*[-*+]\s+/gm, '• ') // 리스트를 bullet point로
+            .replace(/^\s*\d+\.\s+/gm, (match: string) => match) // 번호 리스트 유지
+
+          const contentLines = wrapText(cleanContent, maxWidth, 11, koreanFont)
+
+          contentLines.forEach((line: string) => {
+            if (yPosition < margin + lineHeight) {
+              page = pdfDoc.addPage([pageWidth, pageHeight])
+              yPosition = pageHeight - margin
+            }
+            page.drawText(line, {
+              x: margin,
+              y: yPosition,
+              size: 11,
+              font: koreanFont,
+              color: rgb(0, 0, 0),
+            })
+            yPosition -= lineHeight * 0.8
           })
         }
       })
 
-      // PDF를 Blob으로 변환
-      const pdfBlob = pdf.output('blob')
-      
-      return new NextResponse(pdfBlob, {
+      // PDF 저장
+      const pdfBytes = await pdfDoc.save()
+
+      return new NextResponse(pdfBytes, {
         headers: {
           'Content-Type': 'application/pdf',
-          'Content-Disposition': `attachment; filename="${outline.title}.pdf"`
+          'Content-Disposition': `attachment; filename="${encodeURIComponent(outline.title)}.pdf"`
         }
       })
     }
