@@ -84,6 +84,7 @@ export async function GET(
             title: chapter.title,
             status: chapter.status,
             contentLength: chapter.content.length,
+            content: chapter.content, // 전체 내용 전송 (실시간 스트리밍용)
             preview: chapter.content.slice(0, 100) + (chapter.content.length > 100 ? '...' : '')
           }))
 

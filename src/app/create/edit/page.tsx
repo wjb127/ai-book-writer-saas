@@ -80,6 +80,7 @@ export default function EditPage() {
     title: string
     status: 'pending' | 'generating' | 'completed' | 'error'
     contentLength: number
+    content?: string // 전체 내용
     preview?: string
   }>>([]) // 실시간 진행 상황
 
@@ -1019,59 +1020,75 @@ export default function EditPage() {
                         </div>
                       )}
                       <ScrollArea className="h-[550px] w-full rounded-md border p-6">
-                        {/* 실시간 생성 중인 경우 live preview 표시 */}
-                        {liveChapters.length > 0 && !outline?.chapters[selectedChapter].content ? (
-                          <div className="space-y-6">
-                            <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-4">
-                              <div className="flex items-center gap-2 text-blue-700 dark:text-blue-300">
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                                <span className="font-medium">실시간 생성 중...</span>
-                              </div>
-                              <p className="text-sm text-blue-600 dark:text-blue-400 mt-1">
-                                챕터가 생성되는 동안 미리보기가 자동으로 업데이트됩니다
-                              </p>
-                            </div>
-                            {liveChapters.map((chapter) => (
-                              <div key={chapter.index} className="border rounded-lg p-4 space-y-2">
-                                <div className="flex items-center gap-2">
-                                  <span className="font-semibold text-sm">
-                                    Chapter {chapter.index + 1}: {chapter.title}
-                                  </span>
-                                  {chapter.status === 'generating' && (
-                                    <Loader2 className="w-4 h-4 animate-spin text-blue-600" />
-                                  )}
-                                  {chapter.status === 'completed' && (
-                                    <CheckCircle className="w-4 h-4 text-green-600" />
-                                  )}
+                        {/* 실시간 생성 중인 경우 선택된 챕터의 live content 표시 */}
+                        {(() => {
+                          // 현재 선택된 챕터의 live 데이터 찾기
+                          const liveChapter = liveChapters.find(ch => ch.index === selectedChapter)
+
+                          // live 데이터가 있고, 아직 완성본이 없는 경우
+                          if (liveChapter && !outline?.chapters[selectedChapter].content) {
+                            return (
+                              <div className="space-y-4">
+                                <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                                  <div className="flex items-center gap-2 text-blue-700 dark:text-blue-300">
+                                    {liveChapter.status === 'generating' && (
+                                      <>
+                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                        <span className="font-medium">실시간 생성 중...</span>
+                                      </>
+                                    )}
+                                    {liveChapter.status === 'completed' && (
+                                      <>
+                                        <CheckCircle className="w-4 h-4" />
+                                        <span className="font-medium">생성 완료</span>
+                                      </>
+                                    )}
+                                    {liveChapter.status === 'pending' && (
+                                      <>
+                                        <Clock className="w-4 h-4" />
+                                        <span className="font-medium">대기 중</span>
+                                      </>
+                                    )}
+                                  </div>
+                                  <p className="text-sm text-blue-600 dark:text-blue-400 mt-1">
+                                    {liveChapter.contentLength.toLocaleString()}자 생성됨
+                                  </p>
                                 </div>
-                                {chapter.preview && (
-                                  <div className="text-sm text-muted-foreground bg-muted/30 rounded p-3">
-                                    {chapter.preview}
+
+                                {/* 실시간 스트리밍 내용 */}
+                                {liveChapter.content && (
+                                  <div className="prose prose-sm dark:prose-invert max-w-none">
+                                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                      {liveChapter.content}
+                                    </ReactMarkdown>
                                   </div>
                                 )}
-                                <div className="text-xs text-muted-foreground">
-                                  {chapter.contentLength > 0 && (
-                                    <span>{chapter.contentLength.toLocaleString()}자 생성됨</span>
-                                  )}
-                                </div>
                               </div>
-                            ))}
-                          </div>
-                        ) : outline?.chapters[selectedChapter].content ? (
-                          <div className="prose prose-sm dark:prose-invert max-w-none">
-                            <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                              {outline.chapters[selectedChapter].content}
-                            </ReactMarkdown>
-                          </div>
-                        ) : (
-                          <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
-                            <FileText className="w-12 h-12 mb-4" />
-                            <p className="text-center">
-                              아직 생성된 내용이 없습니다
-                              <br />상단의 '내용 생성' 버튼을 클릭해주세요
-                            </p>
-                          </div>
-                        )}
+                            )
+                          }
+
+                          // 완성된 내용이 있는 경우
+                          if (outline?.chapters[selectedChapter].content) {
+                            return (
+                              <div className="prose prose-sm dark:prose-invert max-w-none">
+                                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                                  {outline.chapters[selectedChapter].content}
+                                </ReactMarkdown>
+                              </div>
+                            )
+                          }
+
+                          // 아무것도 없는 경우
+                          return (
+                            <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
+                              <FileText className="w-12 h-12 mb-4" />
+                              <p className="text-center">
+                                아직 생성된 내용이 없습니다
+                                <br />상단의 '내용 생성' 버튼을 클릭해주세요
+                              </p>
+                            </div>
+                          )
+                        })()}
                       </ScrollArea>
                     </div>
                   </TabsContent>

@@ -12,6 +12,7 @@ interface Chapter {
   title: string
   status: 'pending' | 'generating' | 'completed' | 'error'
   contentLength: number
+  content?: string // 전체 내용 (실시간 스트리밍용)
   preview?: string
 }
 
