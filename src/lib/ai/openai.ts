@@ -1,9 +1,18 @@
 import OpenAI from 'openai'
 import { logger } from '@/lib/logger'
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
+let openaiInstance: OpenAI | null = null
+
+function getOpenAIClient() {
+  if (!openaiInstance) {
+    const apiKey = process.env.OPENAI_API_KEY
+    if (!apiKey) {
+      throw new Error('OPENAI_API_KEY environment variable is not set')
+    }
+    openaiInstance = new OpenAI({ apiKey })
+  }
+  return openaiInstance
+}
 
 // GPT 모델 상수
 export const GPT_MODELS = {
@@ -29,6 +38,7 @@ export async function generateWithOpenAI(prompt: string, model: string = GPT_MOD
     }
     messages.push({ role: 'user', content: prompt })
 
+    const openai = getOpenAIClient()
     const response = await openai.chat.completions.create({
       model,
       messages,

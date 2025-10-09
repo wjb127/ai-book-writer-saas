@@ -1,9 +1,18 @@
 import Anthropic from '@anthropic-ai/sdk'
 import { logger } from '@/lib/logger'
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-})
+let anthropicInstance: Anthropic | null = null
+
+function getAnthropicClient() {
+  if (!anthropicInstance) {
+    const apiKey = process.env.ANTHROPIC_API_KEY
+    if (!apiKey) {
+      throw new Error('ANTHROPIC_API_KEY environment variable is not set')
+    }
+    anthropicInstance = new Anthropic({ apiKey })
+  }
+  return anthropicInstance
+}
 
 // AI 모델 설정
 export const MODELS = {
@@ -24,6 +33,7 @@ export async function generateWithClaude(prompt: string, model: string = DEFAULT
       promptLength: prompt.length
     })
 
+    const anthropic = getAnthropicClient()
     const response = await anthropic.messages.create({
       model,
       max_tokens: 8000,
@@ -74,6 +84,7 @@ export async function generateWithClaudeStream(
     })
 
     // Anthropic SDK의 .stream() 메서드 사용 (공식 방법)
+    const anthropic = getAnthropicClient()
     const stream = anthropic.messages
       .stream({
         model,
